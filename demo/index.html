@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SoulBuilder — AI 数字员工配置生成器</title>
+    <meta name="description" content="5-15分钟，通过引导式对话，一键生成80-90分水准的AI数字员工配置文件。">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- 启动屏 -->
+    <div id="splash-screen" class="splash-screen">
+        <div class="splash-content">
+            <div class="splash-logo">
+                <div class="splash-logo-icon">S</div>
+            </div>
+            <h1 class="splash-title">SoulBuilder</h1>
+            <p class="splash-subtitle">5-15 分钟，打造 80-90 分的 AI 数字员工</p>
+
+            <div class="splash-input-group">
+                <input
+                    type="text"
+                    id="splash-input"
+                    class="splash-input"
+                    placeholder="描述你想创建的 AI 员工..."
+                    autocomplete="off"
+                >
+                <button id="btn-start" class="btn-primary" disabled>
+                    <span>开始创建</span>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M5 12h14M12 5l7 7-7 7"/>
+                    </svg>
+                </button>
+            </div>
+
+            <div class="splash-examples">
+                <span class="splash-examples-label">试试这些：</span>
+                <button class="example-tag" data-text="销售总监">销售总监</button>
+                <button class="example-tag" data-text="CEO 数字分身">CEO 分身</button>
+                <button class="example-tag" data-text="产品经理">产品经理</button>
+                <button class="example-tag" data-text="数据分析专家">数据分析</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 主应用 -->
+    <div id="app" class="app hidden">
+        <!-- 顶部导航栏 -->
+        <header class="header">
+            <div class="header-left">
+                <div class="logo">
+                    <div class="logo-icon">S</div>
+                    <span class="logo-text">SoulBuilder</span>
+                </div>
+            </div>
+
+            <!-- 阶段进度指示器 -->
+            <div class="header-center">
+                <div id="phase-bar" class="phase-bar">
+                    <div class="phase-step active" data-phase="1">
+                        <div class="phase-dot"></div>
+                        <span class="phase-label">破冰</span>
+                    </div>
+                    <div class="phase-connector"></div>
+                    <div class="phase-step" data-phase="2">
+                        <div class="phase-dot"></div>
+                        <span class="phase-label">人格</span>
+                    </div>
+                    <div class="phase-connector"></div>
+                    <div class="phase-step" data-phase="3">
+                        <div class="phase-dot"></div>
+                        <span class="phase-label">方法</span>
+                    </div>
+                    <div class="phase-connector"></div>
+                    <div class="phase-step" data-phase="4">
+                        <div class="phase-dot"></div>
+                        <span class="phase-label">业务</span>
+                    </div>
+                    <div class="phase-connector"></div>
+                    <div class="phase-step" data-phase="5">
+                        <div class="phase-dot"></div>
+                        <span class="phase-label">打磨</span>
+                    </div>
+                    <div class="phase-connector"></div>
+                    <div class="phase-step" data-phase="6">
+                        <div class="phase-dot"></div>
+                        <span class="phase-label">导出</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="header-right">
+                <div id="version-badge" class="version-badge">v1.0</div>
+                <div id="score-badge" class="score-badge">
+                    <span id="score-num">0</span>
+                    <span class="score-total">/100</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- 主内容区 -->
+        <main class="main-content">
+            <!-- 左侧：对话面板 -->
+            <section class="chat-panel">
+                <div id="chat-messages" class="chat-messages">
+                    <!-- 消息会动态插入 -->
+                </div>
+
+                <!-- 搜索状态指示器 -->
+                <div id="search-indicator" class="search-indicator hidden">
+                    <div class="search-progress">
+                        <div class="search-progress-bar" id="search-progress-bar"></div>
+                    </div>
+                    <span id="search-text" class="search-text">正在搜索行业最佳实践...</span>
+                </div>
+
+                <!-- 快捷选项 -->
+                <div id="quick-options" class="quick-options hidden">
+                    <!-- 动态填充 -->
+                </div>
+
+                <!-- 输入区 -->
+                <div class="chat-input-area">
+                    <div class="input-wrapper">
+                        <textarea
+                            id="user-input"
+                            placeholder="输入你的回答..."
+                            rows="1"
+                        ></textarea>
+                        <button id="btn-send" class="btn-send" disabled>
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="input-footer">
+                        <span id="phase-hint" class="phase-hint">Phase 1/6 · 岗位定义</span>
+                        <span class="input-hint">Enter 发送 · Shift+Enter 换行</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 右侧：预览面板 -->
+            <section class="preview-panel">
+                <div class="preview-header">
+                    <div class="preview-tabs">
+                        <button class="tab-btn active" data-tab="portrait">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                <polyline points="14 2 14 8 20 8"/>
+                            </svg>
+                            画像预览
+                        </button>
+                        <button class="tab-btn" data-tab="files">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+                            </svg>
+                            配置文件
+                        </button>
+                    </div>
+                    <div class="preview-actions">
+                        <button id="btn-export-md" class="btn-ghost btn-sm" disabled>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                <polyline points="7 10 12 15 17 10"/>
+                                <line x1="12" y1="15" x2="12" y2="3"/>
+                            </svg>
+                            导出 MD
+                        </button>
+                        <button id="btn-export-zip" class="btn-primary btn-sm" disabled>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                <polyline points="7 10 12 15 17 10"/>
+                                <line x1="12" y1="15" x2="12" y2="3"/>
+                            </svg>
+                            导出 ZIP
+                        </button>
+                    </div>
+                </div>
+
+                <div id="preview-content" class="preview-content">
+                    <div class="preview-empty">
+                        <div class="empty-illustration">
+                            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+                                <circle cx="12" cy="12" r="10"/>
+                                <path d="M12 16v-4"/>
+                                <path d="M12 8h.01"/>
+                            </svg>
+                        </div>
+                        <p class="empty-title">画像预览</p>
+                        <p class="empty-desc">开始对话后，画像将在这里实时生成</p>
+                    </div>
+                </div>
+
+                <div id="preview-files" class="preview-content hidden">
+                    <div class="files-empty" id="files-empty">
+                        <p class="files-empty-title">配置文件</p>
+                        <p class="files-empty-desc">画像完成后，将自动生成 5 个配置文件</p>
+                    </div>
+                    <div class="file-list hidden" id="file-list">
+                        <div class="file-item" data-file="identity">
+                            <div class="file-icon">📄</div>
+                            <div class="file-info">
+                                <span class="file-name">IDENTITY.md</span>
+                                <span class="file-desc">身份档案</span>
+                            </div>
+                            <span class="file-status">等待生成</span>
+                        </div>
+                        <div class="file-item" data-file="soul">
+                            <div class="file-icon">💎</div>
+                            <div class="file-info">
+                                <span class="file-name">SOUL.md</span>
+                                <span class="file-desc">灵魂宪法</span>
+                            </div>
+                            <span class="file-status">等待生成</span>
+                        </div>
+                        <div class="file-item" data-file="heartbeat">
+                            <div class="file-icon">💓</div>
+                            <div class="file-info">
+                                <span class="file-name">HEARTBEAT.md</span>
+                                <span class="file-desc">心跳引擎</span>
+                            </div>
+                            <span class="file-status">等待生成</span>
+                        </div>
+                        <div class="file-item" data-file="agent">
+                            <div class="file-icon">🤖</div>
+                            <div class="file-info">
+                                <span class="file-name">AGENT.md</span>
+                                <span class="file-desc">运行协议</span>
+                            </div>
+                            <span class="file-status">等待生成</span>
+                        </div>
+                        <div class="file-item" data-file="user">
+                            <div class="file-icon">👤</div>
+                            <div class="file-info">
+                                <span class="file-name">USER.md</span>
+                                <span class="file-desc">雇主索引</span>
+                            </div>
+                            <span class="file-status">等待生成</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
