@@ -1,0 +1,404 @@
+/* ============================================
+   SoulBuilder — Premium Dark Theme
+   ============================================ */
+
+:root {
+    /* 主色调 - 更加深邃的蓝黑色调 */
+    --bg-primary: #050508;
+    --bg-secondary: #0c0c14;
+    --bg-tertiary: #131322;
+    --bg-glass: rgba(20, 20, 35, 0.7);
+    --bg-card: rgba(25, 25, 45, 0.5);
+
+    /* 强调色 - 更具呼吸感的紫色 */
+    --accent-primary: #8b5cf6;
+    --accent-secondary: #a78bfa;
+    --accent-glow: rgba(139, 92, 246, 0.4);
+    --accent-gradient: linear-gradient(135deg, #8b5cf6, #d946ef, #6366f1);
+    --accent-warm: #f59e0b;
+    --accent-green: #10b981;
+
+    /* 文字 - 提高对比度 */
+    --text-primary: #f8fafc;
+    --text-secondary: #94a3b8;
+    --text-muted: #64748b;
+    --text-accent: #c4b5fd;
+
+    /* 边框 */
+    --border-glass: rgba(255, 255, 255, 0.08);
+    --border-accent: rgba(139, 92, 246, 0.2);
+
+    --font-sans: 'Inter', 'Noto Sans SC', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    height: 100vh;
+    font-family: var(--font-sans);
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    overflow: hidden;
+    position: relative;
+}
+
+/* 动态背景光效 */
+body::before {
+    content: '';
+    position: absolute;
+    top: -10%;
+    left: -10%;
+    width: 40%;
+    height: 40%;
+    background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
+    filter: blur(80px);
+    z-index: -1;
+    animation: moveGlow1 20s ease-in-out infinite alternate;
+}
+
+body::after {
+    content: '';
+    position: absolute;
+    bottom: -10%;
+    right: -10%;
+    width: 40%;
+    height: 40%;
+    background: radial-gradient(circle, rgba(99, 102, 241, 0.2) 0%, transparent 70%);
+    filter: blur(80px);
+    z-index: -1;
+    animation: moveGlow2 25s ease-in-out infinite alternate;
+}
+
+@keyframes moveGlow1 {
+    0% {
+        transform: translate(0, 0);
+    }
+
+    100% {
+        transform: translate(40vw, 30vh);
+    }
+}
+
+@keyframes moveGlow2 {
+    0% {
+        transform: translate(0, 0);
+    }
+
+    100% {
+        transform: translate(-30vw, -40vh);
+    }
+}
+
+/* ============================================
+   背景装饰图层
+   ============================================ */
+.bg-decoration {
+    position: fixed;
+    inset: 0;
+    z-index: -2;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.glow-orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(100px);
+    opacity: 0.4;
+}
+
+.orb-1 {
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, var(--accent-primary) 0%, transparent 70%);
+    top: -200px;
+    left: -100px;
+    animation: floatOrb 20s infinite alternate;
+}
+
+.orb-2 {
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, #6366f1 0%, transparent 70%);
+    bottom: -100px;
+    right: -100px;
+    animation: floatOrb 25s infinite alternate-reverse;
+}
+
+.orb-3 {
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, #d946ef 0%, transparent 70%);
+    top: 30%;
+    right: 15%;
+    opacity: 0.2;
+    animation: floatOrb 18s infinite alternate;
+}
+
+@keyframes floatOrb {
+    0% {
+        transform: translate(0, 0) scale(1);
+    }
+
+    100% {
+        transform: translate(100px, 50px) scale(1.1);
+    }
+}
+
+/* ============================================
+   启动屏精修
+   ============================================ */
+.splash-screen {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-primary);
+    z-index: 1000;
+}
+
+.fadeOut {
+    animation: fadeOutAnim 0.8s forwards;
+}
+
+@keyframes fadeOutAnim {
+    to {
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+    }
+}
+
+.splash-content {
+    text-align: center;
+    max-width: 500px;
+}
+
+.splash-icon {
+    font-size: 80px;
+    margin-bottom: 24px;
+    filter: drop-shadow(0 0 20px var(--accent-glow));
+}
+
+.splash-title {
+    font-size: 64px;
+    font-weight: 900;
+    background: var(--accent-gradient);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: -2px;
+}
+
+.splash-subtitle {
+    font-size: 20px;
+    color: var(--text-secondary);
+    margin: 12px 0 32px;
+    font-weight: 300;
+}
+
+.btn-primary {
+    padding: 16px 48px;
+    border-radius: 100px;
+    background: var(--accent-gradient);
+    color: white;
+    font-weight: 700;
+    font-size: 18px;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 10px 40px -10px var(--accent-glow);
+    transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.btn-primary:hover {
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 0 20px 50px -10px var(--accent-glow);
+}
+
+/* ============================================
+   主应用布局
+   ============================================ */
+.app {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    backdrop-filter: blur(10px);
+    background: rgba(5, 5, 8, 0.4);
+}
+
+.app.hidden {
+    display: none;
+}
+
+.header {
+    height: 70px;
+    padding: 0 32px;
+    background: rgba(12, 12, 20, 0.7);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border-glass);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.logo-text {
+    font-size: 22px;
+    font-weight: 800;
+    background: var(--accent-gradient);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* Phase Bar 精修 */
+.phase-bar {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    background: rgba(255, 255, 255, 0.03);
+    padding: 4px;
+    border-radius: 100px;
+    border: 1px solid var(--border-glass);
+}
+
+.phase-step {
+    padding: 8px 16px;
+    border-radius: 100px;
+}
+
+.phase-step.active {
+    background: var(--accent-primary);
+    box-shadow: 0 0 20px var(--accent-glow);
+}
+
+.phase-step.active .phase-label,
+.phase-step.active .phase-dot {
+    color: white;
+    background: white;
+}
+
+.phase-connector {
+    width: 12px;
+    opacity: 0.3;
+}
+
+/* ============================================
+   对话区精修
+   ============================================ */
+.chat-messages {
+    padding: 40px;
+    gap: 24px;
+}
+
+.message-body {
+    padding: 20px 24px;
+    font-size: 15px;
+    border-radius: 24px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+.message.system .message-body {
+    background: var(--bg-glass);
+    border: 1px solid var(--border-accent);
+    backdrop-filter: blur(10px);
+}
+
+.message.user .message-body {
+    background: var(--accent-gradient);
+    color: white;
+    border: none;
+}
+
+/* 消息中的“教练思维”卡片样式 */
+.message-body .coach-note {
+    background: rgba(139, 92, 246, 0.1);
+    border: 1px dashed var(--accent-primary);
+    padding: 12px;
+    border-radius: 12px;
+    margin-bottom: 12px;
+    font-size: 13px;
+    color: var(--text-accent);
+}
+
+/* 输入框精修 */
+.chat-input-area {
+    padding: 24px 40px 40px;
+}
+
+.input-wrapper {
+    background: var(--bg-glass);
+    border: 1px solid var(--border-accent);
+    padding: 8px 8px 8px 24px;
+    border-radius: 20px;
+}
+
+/* ============================================
+   预览区精修
+   ============================================ */
+.preview-panel {
+    background: var(--bg-secondary);
+}
+
+.preview-content {
+    padding: 40px;
+}
+
+.portrait-markdown {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.portrait-markdown h1 {
+    font-size: 32px;
+    margin-bottom: 24px;
+}
+
+.portrait-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-glass);
+    padding: 32px;
+    border-radius: 24px;
+    margin-top: 24px;
+    transition: all 0.3s ease;
+}
+
+.portrait-card:hover {
+    border-color: var(--accent-primary);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.5);
+}
+
+/* 按钮精修 */
+.btn-small {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-glass);
+    padding: 8px 16px;
+    border-radius: 12px;
+    font-weight: 600;
+}
+
+.btn-small:hover:not(:disabled) {
+    background: var(--bg-hover);
+    border-color: var(--accent-primary);
+}
+
+/* ============================================
+   动画
+   ============================================ */
+@keyframes pulse-ring {
+    0% {
+        transform: scale(0.8);
+        opacity: 0.5;
+    }
+
+    100% {
+        transform: scale(2.4);
+        opacity: 0;
+    }
+}

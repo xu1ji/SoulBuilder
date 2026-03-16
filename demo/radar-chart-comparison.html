@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SoulBuilder Agent 评估雷达图</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #0D0208;
+      color: #00FF41;
+      font-family: 'SF Mono', 'Monaco', 'Inconsolata', monospace;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+      padding: 20px;
+      border-bottom: 1px solid #008F11;
+    }
+
+    .header h1 {
+      font-size: 24px;
+      font-weight: 300;
+      letter-spacing: 4px;
+      margin-bottom: 10px;
+    }
+
+    .header p {
+      color: #008F11;
+      font-size: 13px;
+    }
+
+    .agent-selector {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .agent-btn {
+      background: transparent;
+      border: 1px solid #008F11;
+      color: #00FF41;
+      padding: 8px 16px;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 12px;
+      transition: all 0.3s;
+    }
+
+    .agent-btn:hover {
+      background: #003B00;
+      border-color: #00FF41;
+    }
+
+    .agent-btn.active {
+      background: #00FF41;
+      color: #0D0208;
+    }
+
+    .score-section {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 40px;
+      margin-bottom: 20px;
+      padding: 15px;
+      background: rgba(0, 255, 65, 0.03);
+      border-radius: 8px;
+      border: 1px solid #003B00;
+    }
+
+    .score-item {
+      text-align: center;
+    }
+
+    .score-value {
+      font-size: 36px;
+      font-weight: 200;
+    }
+
+    .score-label {
+      font-size: 11px;
+      color: #008F11;
+      margin-top: 5px;
+    }
+
+    .rank-a { color: #4ADE80; }
+    .rank-b { color: #00FF41; }
+    .rank-c { color: #FBBF24; }
+
+    .chart-wrapper {
+      background: rgba(0, 255, 65, 0.02);
+      border: 1px solid #003B00;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    .chart-container {
+      height: 350px;
+      position: relative;
+    }
+
+    .legend {
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      margin-top: 15px;
+      padding-top: 15px;
+      border-top: 1px solid #003B00;
+      font-size: 12px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .legend-line {
+      width: 20px;
+      height: 3px;
+    }
+
+    .legend-line.current {
+      background: #00FF41;
+    }
+
+    .legend-line.target {
+      background: repeating-linear-gradient(
+        90deg,
+        #FBBF24,
+        #FBBF24 5px,
+        transparent 5px,
+        transparent 10px
+      );
+    }
+
+    .dimensions-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .dimension-card {
+      text-align: center;
+      padding: 12px 8px;
+      background: rgba(0, 255, 65, 0.03);
+      border: 1px solid #003B00;
+      border-radius: 6px;
+      transition: all 0.3s;
+    }
+
+    .dimension-card:hover {
+      border-color: #008F11;
+      background: rgba(0, 255, 65, 0.05);
+    }
+
+    .dimension-name {
+      font-size: 10px;
+      color: #008F11;
+      margin-bottom: 5px;
+      text-transform: uppercase;
+    }
+
+    .dimension-value {
+      font-size: 20px;
+      font-weight: 300;
+    }
+
+    .dimension-target {
+      font-size: 10px;
+      color: #FBBF24;
+      margin-top: 3px;
+    }
+
+    /* Tooltip 样式覆盖 */
+    #chartjs-tooltip {
+      position: absolute;
+      background: rgba(13, 2, 8, 0.95);
+      border: 1px solid #00FF41;
+      border-radius: 4px;
+      padding: 10px 14px;
+      font-family: 'SF Mono', Monaco, monospace;
+      font-size: 12px;
+      color: #00FF41;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.15s;
+      z-index: 100;
+      box-shadow: 0 0 20px rgba(0, 255, 65, 0.2);
+    }
+
+    #chartjs-tooltip.visible {
+      opacity: 1;
+    }
+
+    .tooltip-title {
+      font-weight: 500;
+      margin-bottom: 6px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid #008F11;
+    }
+
+    .tooltip-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    .tooltip-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+
+    .tooltip-label {
+      color: #008F11;
+    }
+
+    .tooltip-value {
+      font-weight: 500;
+    }
+
+    .tooltip-gap {
+      margin-left: auto;
+      color: #FBBF24;
+      font-size: 11px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>SoulBuilder Agent 评估</h1>
+      <p>选择 Agent 查看能力雷达图</p>
+    </div>
+
+    <!-- Agent 选择器 -->
+    <div class="agent-selector">
+      <button class="agent-btn active" data-agent="trumind">Trumind</button>
+      <button class="agent-btn" data-agent="gates">Gates</button>
+      <button class="agent-btn" data-agent="grace">Grace</button>
+      <button class="agent-btn" data-agent="cynthia">Cynthia</button>
+    </div>
+
+    <!-- 分数展示 -->
+    <div class="score-section">
+      <div class="score-item">
+        <div class="score-value" id="current-score">84</div>
+        <div class="score-label">当前分数</div>
+      </div>
+      <div class="score-item">
+        <div class="score-value" id="target-score">90</div>
+        <div class="score-label">目标分数</div>
+      </div>
+      <div class="score-item">
+        <div class="score-value" id="rank">A</div>
+        <div class="score-label">等级</div>
+      </div>
+    </div>
+
+    <!-- 维度卡片 -->
+    <div class="dimensions-grid" id="dimensions-grid">
+      <!-- JS 动态生成 -->
+    </div>
+
+    <!-- 雷达图 -->
+    <div class="chart-wrapper">
+      <div class="chart-container">
+        <canvas id="radar-chart"></canvas>
+        <div id="chartjs-tooltip"></div>
+      </div>
+      <div class="legend">
+        <div class="legend-item">
+          <div class="legend-line current"></div>
+          <span>当前状态</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-line target"></div>
+          <span>目标状态</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+  <script>
+    // Agent 数据
+    const agentsData = {
+      trumind: {
+        name: 'Trumind',
+        score: 84,
+        targetScore: 90,
+        rank: 'A',
+        dimensions: {
+          identity: 92,
+          soul: 95,
+          user: 78,
+          tools: 72,
+          agents: 88,
+          memory: 70
+        },
+        target: [95, 98, 85, 80, 90, 80]
+      },
+      gates: {
+        name: 'Gates',
+        score: 81,
+        targetScore: 88,
+        rank: 'A',
+        dimensions: {
+          identity: 85,
+          soul: 88,
+          user: 68,
+          tools: 85,
+          agents: 90,
+          memory: 65
+        },
+        target: [90, 92, 80, 90, 95, 80]
+      },
+      grace: {
+        name: 'Grace',
+        score: 76,
+        targetScore: 85,
+        rank: 'B',
+        dimensions: {
+          identity: 88,
+          soul: 78,
+          user: 72,
+          tools: 65,
+          agents: 88,
+          memory: 60
+        },
+        target: [92, 85, 80, 75, 92, 75]
+      },
+      cynthia: {
+        name: 'Cynthia',
+        score: 59,
+        targetScore: 75,
+        rank: 'C',
+        dimensions: {
+          identity: 65,
+          soul: 60,
+          user: 15,
+          tools: 70,
+          agents: 88,
+          memory: 65
+        },
+        target: [80, 75, 70, 80, 90, 80]
+      }
+    };
+
+    const DIMENSION_LABELS = ['Identity', 'Soul', 'User', 'Tools', 'Agents', 'Memory'];
+    const MATRIX_GREEN = '#00FF41';
+    const MATRIX_GREEN_DARK = '#008F11';
+    const GOLD = '#FBBF24';
+
+    let currentAgent = 'trumind';
+    let chartInstance = null;
+    const tooltipEl = document.getElementById('chartjs-tooltip');
+
+    // 获取或创建 tooltip 元素
+    function getTooltip() {
+      return tooltipEl;
+    }
+
+    // 外部 tooltip 处理
+    function externalTooltipHandler(context) {
+      const { chart, tooltip } = context;
+
+      // 隐藏原生 tooltip
+      tooltip.setActiveElements([], { x: 0, y: 0 });
+
+      if (tooltip.opacity === 0) {
+        tooltipEl.style.opacity = '0';
+        return;
+      }
+
+      if (tooltip.body) {
+        const title = tooltip.title[0] || '';
+        const dataIndex = DIMENSION_LABELS.indexOf(title);
+        const agent = agentsData[currentAgent];
+        const currentValue = agent.dimensions[title.toLowerCase()] || Object.values(agent.dimensions)[dataIndex];
+        const targetValue = agent.target[dataIndex];
+        const gap = targetValue - currentValue;
+
+        tooltipEl.innerHTML = `
+          <div class="tooltip-title">${title}</div>
+          <div class="tooltip-row">
+            <div class="tooltip-dot" style="background: ${MATRIX_GREEN}"></div>
+            <span class="tooltip-label">当前:</span>
+            <span class="tooltip-value">${currentValue} 分</span>
+          </div>
+          <div class="tooltip-row">
+            <div class="tooltip-dot" style="background: ${GOLD}"></div>
+            <span class="tooltip-label">目标:</span>
+            <span class="tooltip-value">${targetValue} 分</span>
+            <span class="tooltip-gap">差距: ${gap > 0 ? '+' : ''}${gap}</span>
+          </div>
+        `;
+      }
+
+      const { offsetLeft: positionX, offsetTop: positionY } = chart.canvas;
+
+      // 计算位置
+      tooltipEl.style.opacity = '1';
+      tooltipEl.style.left = positionX + tooltip.caretX + 10 + 'px';
+      tooltipEl.style.top = positionY + tooltip.caretY - 10 + 'px';
+    }
+
+    // 更新分数显示
+    function updateScoreDisplay(agent) {
+      document.getElementById('current-score').textContent = agent.score;
+      document.getElementById('current-score').className = `score-value rank-${agent.rank.toLowerCase()}`;
+      document.getElementById('target-score').textContent = agent.targetScore;
+      document.getElementById('rank').textContent = agent.rank;
+      document.getElementById('rank').className = `score-value rank-${agent.rank.toLowerCase()}`;
+    }
+
+    // 更新维度卡片
+    function updateDimensionsGrid(agent) {
+      const container = document.getElementById('dimensions-grid');
+      container.innerHTML = '';
+
+      const dims = ['identity', 'soul', 'user', 'tools', 'agents', 'memory'];
+      dims.forEach((dim, i) => {
+        const current = agent.dimensions[dim];
+        const target = agent.target[i];
+        const gap = target - current;
+
+        const card = document.createElement('div');
+        card.className = 'dimension-card';
+        card.innerHTML = `
+          <div class="dimension-name">${dim}</div>
+          <div class="dimension-value">${current}</div>
+          <div class="dimension-target">→ ${target} (${gap > 0 ? '+' : ''}${gap})</div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    // 渲染雷达图
+    function renderRadarChart(current, target) {
+      const ctx = document.getElementById('radar-chart').getContext('2d');
+
+      if (chartInstance) {
+        chartInstance.destroy();
+      }
+
+      chartInstance = new Chart(ctx, {
+        type: 'radar',
+        data: {
+          labels: DIMENSION_LABELS,
+          datasets: [
+            {
+              label: '当前状态',
+              data: current,
+              backgroundColor: 'rgba(0, 255, 65, 0.25)',
+              borderColor: MATRIX_GREEN,
+              borderWidth: 2,
+              pointBackgroundColor: MATRIX_GREEN,
+              pointBorderColor: MATRIX_GREEN,
+              pointRadius: 4,
+              pointHoverRadius: 6,
+              pointHoverBackgroundColor: MATRIX_GREEN,
+              pointHoverBorderColor: '#FFFFFF',
+              pointHoverBorderWidth: 2
+            },
+            {
+              label: '目标状态',
+              data: target,
+              backgroundColor: 'rgba(251, 191, 36, 0.08)',
+              borderColor: GOLD,
+              borderWidth: 2,
+              borderDash: [6, 4],
+              pointBackgroundColor: GOLD,
+              pointBorderColor: GOLD,
+              pointRadius: 4,
+              pointHoverRadius: 6,
+              pointHoverBackgroundColor: GOLD,
+              pointHoverBorderColor: '#FFFFFF',
+              pointHoverBorderWidth: 2
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          animation: {
+            duration: 800,
+            easing: 'easeInOutQuart'
+          },
+          interaction: {
+            mode: 'nearest',
+            intersect: false
+          },
+          plugins: {
+            legend: {
+              display: false
+            },
+            tooltip: {
+              enabled: false,
+              external: externalTooltipHandler
+            }
+          },
+          scales: {
+            r: {
+              max: 100,
+              min: 0,
+              beginAtZero: true,
+              grid: {
+                color: MATRIX_GREEN_DARK,
+                lineWidth: 1
+              },
+              angleLines: {
+                color: MATRIX_GREEN_DARK,
+                lineWidth: 1
+              },
+              pointLabels: {
+                color: MATRIX_GREEN,
+                font: {
+                  family: "'SF Mono', Monaco, monospace",
+                  size: 11,
+                  weight: '500'
+                },
+                padding: 15
+              },
+              ticks: {
+                display: true,
+                stepSize: 20,
+                color: MATRIX_GREEN_DARK,
+                backdropColor: 'transparent',
+                font: {
+                  size: 9
+                }
+              }
+            }
+          },
+          onHover: (event, elements) => {
+            event.native.target.style.cursor = elements.length ? 'pointer' : 'default';
+          }
+        }
+      });
+    }
+
+    // 更新所有内容
+    function updateAll() {
+      const agent = agentsData[currentAgent];
+      const current = [
+        agent.dimensions.identity,
+        agent.dimensions.soul,
+        agent.dimensions.user,
+        agent.dimensions.tools,
+        agent.dimensions.agents,
+        agent.dimensions.memory
+      ];
+
+      updateScoreDisplay(agent);
+      updateDimensionsGrid(agent);
+      renderRadarChart(current, agent.target);
+    }
+
+    // Agent 切换
+    document.querySelectorAll('.agent-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.agent-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentAgent = btn.dataset.agent;
+        updateAll();
+      });
+    });
+
+    // 鼠标离开图表区域时隐藏 tooltip
+    document.getElementById('radar-chart').addEventListener('mouseleave', () => {
+      tooltipEl.style.opacity = '0';
+    });
+
+    // 初始化
+    updateAll();
+  </script>
+</body>
+</html>

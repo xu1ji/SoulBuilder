@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔮 SoulBuilder — Agent 灵魂赋能</title>
+    <meta name="description" content="5-15分钟，通过引导式对话，一键生成80-90分水准的AI数字员工配置文件。">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+SC:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="dark">
+    <!-- 背景装饰图层 -->
+    <div class="bg-decoration">
+        <div class="glow-orb orb-1"></div>
+        <div class="glow-orb orb-2"></div>
+        <div class="glow-orb orb-3"></div>
+    </div>
+    <!-- 启动屏 -->
+    <div id="splash-screen" class="splash-screen">
+        <div class="splash-content">
+            <div class="splash-icon">🔮</div>
+            <h1 class="splash-title">SoulBuilder</h1>
+            <p class="splash-subtitle">Agent 灵魂赋能</p>
+            <p class="splash-tagline">给你的 AI 员工，注入灵魂。</p>
+            <button id="btn-start" class="btn-primary btn-glow">
+                <span>开始赋能</span>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M5 12h14M12 5l7 7-7 7" />
+                </svg>
+            </button>
+            <div class="splash-stats">
+                <div class="stat"><span class="stat-num">5-15</span><span class="stat-label">分钟</span></div>
+                <div class="stat-divider"></div>
+                <div class="stat"><span class="stat-num">80-90</span><span class="stat-label">分品质</span></div>
+                <div class="stat-divider"></div>
+                <div class="stat"><span class="stat-num">18</span><span class="stat-label">信息渠道</span></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 主应用 -->
+    <div id="app" class="app hidden">
+        <!-- 顶部导航栏 -->
+        <header class="header">
+            <div class="header-left">
+                <span class="logo">🔮</span>
+                <span class="logo-text">SoulBuilder</span>
+            </div>
+            <div class="header-center">
+                <div id="phase-bar" class="phase-bar">
+                    <div class="phase-step active" data-phase="1"><span class="phase-dot"></span><span
+                            class="phase-label">破冰</span></div>
+                    <div class="phase-connector"></div>
+                    <div class="phase-step" data-phase="2"><span class="phase-dot"></span><span
+                            class="phase-label">人格</span></div>
+                    <div class="phase-connector"></div>
+                    <div class="phase-step" data-phase="3"><span class="phase-dot"></span><span
+                            class="phase-label">方法论</span></div>
+                    <div class="phase-connector"></div>
+                    <div class="phase-step" data-phase="4"><span class="phase-dot"></span><span
+                            class="phase-label">业务</span></div>
+                    <div class="phase-connector"></div>
+                    <div class="phase-step" data-phase="5"><span class="phase-dot"></span><span
+                            class="phase-label">打磨</span></div>
+                    <div class="phase-connector"></div>
+                    <div class="phase-step" data-phase="6"><span class="phase-dot"></span><span
+                            class="phase-label">导出</span></div>
+                </div>
+            </div>
+            <div class="header-right">
+                <div id="version-badge" class="version-badge">v1.0</div>
+                <div id="score-badge" class="score-badge"><span id="score-num">0</span>/100</div>
+            </div>
+        </header>
+
+        <!-- 主内容区 -->
+        <main class="main-content">
+            <!-- 左侧：对话面板 -->
+            <section class="chat-panel">
+                <div id="chat-messages" class="chat-messages">
+                    <!-- 消息会动态插入 -->
+                </div>
+
+                <!-- 搜索状态指示器 -->
+                <div id="search-indicator" class="search-indicator hidden">
+                    <div class="search-pulse"></div>
+                    <span id="search-text">🔍 正在搜索行业最佳实践...</span>
+                </div>
+
+                <!-- 快捷选项 -->
+                <div id="quick-options" class="quick-options hidden">
+                    <!-- 动态填充 -->
+                </div>
+
+                <!-- 输入区 -->
+                <div class="chat-input-area">
+                    <div class="input-wrapper">
+                        <textarea id="user-input" placeholder="描述你想要的 AI 员工..." rows="1"></textarea>
+                        <button id="btn-send" class="btn-send" disabled>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" />
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="input-hint">
+                        <span id="phase-hint">Phase 1/6 · 岗位定义</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 右侧：预览面板 -->
+            <section class="preview-panel">
+                <div class="preview-header">
+                    <div class="preview-tabs">
+                        <button class="tab-btn active" data-tab="portrait">📄 画像预览</button>
+                        <button class="tab-btn" data-tab="files">📁 配置文件</button>
+                    </div>
+                    <div class="preview-actions">
+                        <button id="btn-export-md" class="btn-small" disabled>导出 MD</button>
+                        <button id="btn-export-zip" class="btn-small btn-accent" disabled>导出 ZIP</button>
+                    </div>
+                </div>
+                <div id="preview-content" class="preview-content">
+                    <div class="preview-empty">
+                        <div class="empty-icon">✨</div>
+                        <p>开始对话后，画像预览将实时显示在这里</p>
+                        <p class="empty-hint">你说得越多，画像越丰满</p>
+                    </div>
+                </div>
+                <div id="preview-files" class="preview-content hidden">
+                    <div class="file-list">
+                        <div class="file-item dimmed"><span class="file-icon">📄</span> IDENTITY.md <span
+                                class="file-status">等待生成</span></div>
+                        <div class="file-item dimmed"><span class="file-icon">💎</span> SOUL.md <span
+                                class="file-status">等待生成</span></div>
+                        <div class="file-item dimmed"><span class="file-icon">💓</span> HEARTBEAT.md <span
+                                class="file-status">等待生成</span></div>
+                        <div class="file-item dimmed"><span class="file-icon">🤖</span> AGENT.md <span
+                                class="file-status">等待生成</span></div>
+                        <div class="file-item dimmed"><span class="file-icon">👤</span> USER.md <span
+                                class="file-status">等待生成</span></div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+
+</html>
