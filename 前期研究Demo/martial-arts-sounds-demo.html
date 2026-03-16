@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>武术音效选择 Demo</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #0D0208;
+      color: #00FF41;
+      font-family: 'Courier New', monospace;
+      min-height: 100vh;
+      padding: 30px;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 1.5rem;
+      margin-bottom: 10px;
+      text-shadow: 0 0 10px #00FF41;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: #008F11;
+      font-size: 0.85rem;
+      margin-bottom: 30px;
+    }
+
+    .category {
+      margin-bottom: 30px;
+      border: 1px solid #008F11;
+      padding: 20px;
+      border-radius: 8px;
+    }
+
+    .category h2 {
+      font-size: 1rem;
+      color: #00FF41;
+      margin-bottom: 15px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #008F11;
+    }
+
+    .category h2 span {
+      color: #FBBF24;
+      font-size: 0.75rem;
+      margin-left: 10px;
+    }
+
+    .sound-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 12px;
+    }
+
+    .sound-btn {
+      background: transparent;
+      border: 1px solid #00FF41;
+      color: #00FF41;
+      padding: 12px 15px;
+      cursor: pointer;
+      font-family: 'Courier New', monospace;
+      font-size: 0.85rem;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-radius: 4px;
+    }
+
+    .sound-btn:hover {
+      background: rgba(0, 255, 65, 0.15);
+      box-shadow: 0 0 15px rgba(0, 255, 65, 0.3);
+    }
+
+    .sound-btn:active {
+      transform: scale(0.98);
+    }
+
+    .sound-btn .icon {
+      font-size: 1rem;
+    }
+
+    .sound-btn.selected {
+      background: #00FF41;
+      color: #000;
+    }
+
+    .sound-btn.selected:hover {
+      background: #00FF41;
+    }
+
+    .preview-section {
+      margin-top: 30px;
+      padding: 20px;
+      border: 2px solid #FBBF24;
+      border-radius: 8px;
+      background: rgba(251, 191, 36, 0.05);
+    }
+
+    .preview-section h3 {
+      color: #FBBF24;
+      margin-bottom: 15px;
+    }
+
+    .selected-sounds {
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+      margin-bottom: 15px;
+    }
+
+    .selected-item {
+      background: rgba(0, 255, 65, 0.1);
+      border: 1px solid #00FF41;
+      padding: 8px 15px;
+      border-radius: 4px;
+      font-size: 0.8rem;
+    }
+
+    .selected-item .label {
+      color: #008F11;
+      margin-right: 8px;
+    }
+
+    .play-all-btn {
+      background: #FBBF24;
+      color: #000;
+      border: none;
+      padding: 12px 30px;
+      cursor: pointer;
+      font-family: 'Courier New', monospace;
+      font-size: 1rem;
+      border-radius: 4px;
+      transition: all 0.2s;
+    }
+
+    .play-all-btn:hover {
+      box-shadow: 0 0 20px rgba(251, 191, 36, 0.5);
+    }
+
+    .play-all-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .note {
+      margin-top: 20px;
+      padding: 15px;
+      background: rgba(0, 255, 65, 0.05);
+      border-left: 3px solid #008F11;
+      font-size: 0.75rem;
+      color: #008F11;
+      line-height: 1.6;
+    }
+
+    .note strong {
+      color: #00FF41;
+    }
+  </style>
+</head>
+<body>
+  <h1>🥋 武术音效选择 Demo</h1>
+  <p class="subtitle">使用 Web Audio API 合成音效 - 点击试听，选择喜欢的音效组合</p>
+
+  <!-- 小招音效 -->
+  <div class="category">
+    <h2>👊 小招音效 <span>(轻击/快速动作)</span></h2>
+    <div class="sound-grid">
+      <button class="sound-btn" data-sound="quick-punch-1" data-category="small">
+        <span>快速出拳 1</span>
+        <span class="icon">▶</span>
+      </button>
+      <button class="sound-btn" data-sound="quick-punch-2" data-category="small">
+        <span>快速出拳 2</span>
+        <span class="icon">▶</span>
+      </button>
+      <button class="sound-btn" data-sound="light-hit" data-category="small">
+        <span>轻击命中</span>
+        <span class="icon">▶</span>
+      </button>
+      <button class="sound-btn" data-sound="swish-1" data-category="small">
+        <span>挥拳风声 1</span>
+        <span class="icon">▶</span>
+      </button>
+      <button class="sound-btn" data-sound="swish-2" data-category="small">
+        <span>挥拳风声 2</span>
+        <span class="icon">▶</span>
+      </button>
+      <button class="sound-btn" data-sound="jab" data-category="small">
+        <span>刺拳</span>
+        <span class="icon">▶</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- 中招音效 -->
+  <div class="category">
+    <h2>🦶 中招音效 <span>(重击/踢腿)</span></h2>
+    <div class="sound-grid">
+      <button class="sound-btn" data-sound="heavy-punch" data-category="medium">
+        <span>重拳</span>
+        <span class="icon">▶</span>
+      </button>
+      <button class="sound-btn" data-sound="kick-1" data-category="medium">
+        <span>踢腿 1</span>
+        <span class="icon">▶</span>
+      </button>
+      <button class="sound-btn" data-sound="kick-2" data-category="medium">
+        <span>踢腿 2</span>
+        <span class="icon">▶</span>
+      </button>
+      <button class="sound-btn" data-sound="impact-1" data-category="medium">
+        <span>重击命中 1</span>
+        <span class="icon">▶</span>
+      </button>
+      <button class="sound-btn" data-sound="impact-2" data-category="medium">
+        <span>重击命中 2</span>
+        <span class="icon">▶</span>
+      </button>
+      <button class="sound-btn" data-sound="block" data-category="medium">
+        <span>格挡</span>
+        <span class="icon">▶</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- 大招音效 -->
+  <div class="category">
+    <h2>⚡ 大招音效 <span>(必杀技/觉醒)</span></h2>
+    <div class="sound-grid">
+      <button class="sound-btn" data-sound="power-up-1" data-category="big">
+        <span>蓄力爆发 1</span>
+        <span class="icon">▶</span>
+      </button>
+      <button class="sound-btn" data-sound="power-up-2" data-category="big">
+        <span>蓄力爆发 2</span>
+        <span class="icon">▶</span>
+      </button>
+      <button class="sound-btn" data-sound="special-1" data-category="big">
+        <span>必杀技 1</span>
+        <span class="icon">▶</span>
+      </button>
+      <button class="sound-btn" data-sound="special-2" data-category="big">
+        <span>必杀技 2</span>
+        <span class="icon">▶</span>
+      </button>
+      <button class="sound-btn" data-sound="combo-finish" data-category="big">
+        <span>连招终结</span>
+        <span class="icon">▶</span>
+      </button>
+      <button class="sound-btn" data-sound="awakening" data-category="big">
+        <span>觉醒</span>
+        <span class="icon">▶</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- 预览区 -->
+  <div class="preview-section">
+    <h3>📋 已选择音效</h3>
+    <div class="selected-sounds" id="selectedDisplay">
+      <div class="selected-item"><span class="label">小招:</span><span id="smallChoice">未选择</span></div>
+      <div class="selected-item"><span class="label">中招:</span><span id="mediumChoice">未选择</span></div>
+      <div class="selected-item"><span class="label">大招:</span><span id="bigChoice">未选择</span></div>
+    </div>
+    <button class="play-all-btn" id="playAllBtn" disabled>🎬 播放组合演示</button>
+  </div>
+
+  <div class="note">
+    <strong>提示:</strong> 点击音效按钮试听。每个分类选择一个音效后，可以点击"播放组合演示"查看效果。<br>
+    音效使用 Web Audio API 实时合成，无需加载外部文件。选择完成后告诉我你的选择！
+  </div>
+
+  <script>
+    // ========== Web Audio API 音效合成器 ==========
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    let audioCtx = null;
+
+    function getAudioContext() {
+      if (!audioCtx) {
+        audioCtx = new AudioContext();
+      }
+      return audioCtx;
+    }
+
+    // 音效定义
+    const sounds = {
+      // === 小招 ===
+      'quick-punch-1': () => {
+        const ctx = getAudioContext();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.frequency.setValueAtTime(800, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(200, ctx.currentTime + 0.1);
+        gain.gain.setValueAtTime(0.3, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.1);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.1);
+      },
+
+      'quick-punch-2': () => {
+        const ctx = getAudioContext();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'square';
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.frequency.setValueAtTime(600, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(100, ctx.currentTime + 0.08);
+        gain.gain.setValueAtTime(0.2, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.08);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.08);
+      },
+
+      'light-hit': () => {
+        const ctx = getAudioContext();
+        // 白噪声
+        const bufferSize = ctx.sampleRate * 0.05;
+        const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+          data[i] = Math.random() * 2 - 1;
+        }
+        const noise = ctx.createBufferSource();
+        noise.buffer = buffer;
+        const gain = ctx.createGain();
+        const filter = ctx.createBiquadFilter();
+        filter.type = 'highpass';
+        filter.frequency.value = 1000;
+        noise.connect(filter);
+        filter.connect(gain);
+        gain.connect(ctx.destination);
+        gain.gain.setValueAtTime(0.3, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.05);
+        noise.start();
+        noise.stop(ctx.currentTime + 0.05);
+      },
+
+      'swish-1': () => {
+        const ctx = getAudioContext();
+        const bufferSize = ctx.sampleRate * 0.15;
+        const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+          data[i] = Math.random() * 2 - 1;
+        }
+        const noise = ctx.createBufferSource();
+        noise.buffer = buffer;
+        const filter = ctx.createBiquadFilter();
+        filter.type = 'bandpass';
+        filter.frequency.setValueAtTime(3000, ctx.currentTime);
+        filter.frequency.exponentialRampToValueAtTime(500, ctx.currentTime + 0.15);
+        filter.Q.value = 2;
+        const gain = ctx.createGain();
+        noise.connect(filter);
+        filter.connect(gain);
+        gain.connect(ctx.destination);
+        gain.gain.setValueAtTime(0.15, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.15);
+        noise.start();
+        noise.stop(ctx.currentTime + 0.15);
+      },
+
+      'swish-2': () => {
+        const ctx = getAudioContext();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.frequency.setValueAtTime(1500, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(300, ctx.currentTime + 0.12);
+        gain.gain.setValueAtTime(0.1, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.12);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.12);
+      },
+
+      'jab': () => {
+        const ctx = getAudioContext();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.frequency.setValueAtTime(400, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(80, ctx.currentTime + 0.06);
+        gain.gain.setValueAtTime(0.25, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.06);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.06);
+      },
+
+      // === 中招 ===
+      'heavy-punch': () => {
+        const ctx = getAudioContext();
+        // 低频冲击
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.frequency.setValueAtTime(150, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(40, ctx.currentTime + 0.2);
+        gain.gain.setValueAtTime(0.5, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.2);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.2);
+
+        // 噪声层
+        const bufferSize = ctx.sampleRate * 0.1;
+        const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+          data[i] = Math.random() * 2 - 1;
+        }
+        const noise = ctx.createBufferSource();
+        noise.buffer = buffer;
+        const noiseGain = ctx.createGain();
+        const filter = ctx.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.value = 800;
+        noise.connect(filter);
+        filter.connect(noiseGain);
+        noiseGain.connect(ctx.destination);
+        noiseGain.gain.setValueAtTime(0.3, ctx.currentTime);
+        noiseGain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.1);
+        noise.start();
+        noise.stop(ctx.currentTime + 0.1);
+      },
+
+      'kick-1': () => {
+        const ctx = getAudioContext();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.frequency.setValueAtTime(200, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(50, ctx.currentTime + 0.15);
+        gain.gain.setValueAtTime(0.4, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.15);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.15);
+
+        // 高频点击
+        const click = ctx.createOscillator();
+        const clickGain = ctx.createGain();
+        click.type = 'square';
+        click.connect(clickGain);
+        clickGain.connect(ctx.destination);
+        click.frequency.setValueAtTime(1000, ctx.currentTime);
+        click.frequency.exponentialRampToValueAtTime(200, ctx.currentTime + 0.05);
+        clickGain.gain.setValueAtTime(0.15, ctx.currentTime);
+        clickGain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.05);
+        click.start();
+        click.stop(ctx.currentTime + 0.05);
+      },
+
+      'kick-2': () => {
+        const ctx = getAudioContext();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'triangle';
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.frequency.setValueAtTime(300, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(60, ctx.currentTime + 0.18);
+        gain.gain.setValueAtTime(0.35, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.18);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.18);
+      },
+
+      'impact-1': () => {
+        const ctx = getAudioContext();
+        // 双层打击
+        const osc1 = ctx.createOscillator();
+        const gain1 = ctx.createGain();
+        osc1.type = 'sine';
+        osc1.connect(gain1);
+        gain1.connect(ctx.destination);
+        osc1.frequency.setValueAtTime(100, ctx.currentTime);
+        osc1.frequency.exponentialRampToValueAtTime(30, ctx.currentTime + 0.25);
+        gain1.gain.setValueAtTime(0.5, ctx.currentTime);
+        gain1.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.25);
+        osc1.start();
+        osc1.stop(ctx.currentTime + 0.25);
+
+        const osc2 = ctx.createOscillator();
+        const gain2 = ctx.createGain();
+        osc2.type = 'sawtooth';
+        osc2.connect(gain2);
+        gain2.connect(ctx.destination);
+        osc2.frequency.setValueAtTime(80, ctx.currentTime + 0.02);
+        osc2.frequency.exponentialRampToValueAtTime(20, ctx.currentTime + 0.15);
+        gain2.gain.setValueAtTime(0.2, ctx.currentTime + 0.02);
+        gain2.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.15);
+        osc2.start(ctx.currentTime + 0.02);
+        osc2.stop(ctx.currentTime + 0.15);
+      },
+
+      'impact-2': () => {
+        const ctx = getAudioContext();
+        const bufferSize = ctx.sampleRate * 0.2;
+        const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+          data[i] = Math.random() * 2 - 1;
+        }
+        const noise = ctx.createBufferSource();
+        noise.buffer = buffer;
+        const filter = ctx.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(1500, ctx.currentTime);
+        filter.frequency.exponentialRampToValueAtTime(100, ctx.currentTime + 0.2);
+        const gain = ctx.createGain();
+        noise.connect(filter);
+        filter.connect(gain);
+        gain.connect(ctx.destination);
+        gain.gain.setValueAtTime(0.4, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.2);
+        noise.start();
+        noise.stop(ctx.currentTime + 0.2);
+      },
+
+      'block': () => {
+        const ctx = getAudioContext();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'triangle';
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.frequency.setValueAtTime(800, ctx.currentTime);
+        osc.frequency.setValueAtTime(600, ctx.currentTime + 0.05);
+        osc.frequency.setValueAtTime(800, ctx.currentTime + 0.1);
+        gain.gain.setValueAtTime(0.2, ctx.currentTime);
+        gain.gain.setValueAtTime(0.01, ctx.currentTime + 0.15);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.15);
+      },
+
+      // === 大招 ===
+      'power-up-1': () => {
+        const ctx = getAudioContext();
+        // 上升音
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.frequency.setValueAtTime(100, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(800, ctx.currentTime + 0.5);
+        gain.gain.setValueAtTime(0.1, ctx.currentTime);
+        gain.gain.linearRampToValueAtTime(0.3, ctx.currentTime + 0.4);
+        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.6);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.6);
+
+        // 爆发
+        const bufferSize = ctx.sampleRate * 0.3;
+        const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+          data[i] = Math.random() * 2 - 1;
+        }
+        const noise = ctx.createBufferSource();
+        noise.buffer = buffer;
+        const filter = ctx.createBiquadFilter();
+        filter.type = 'bandpass';
+        filter.frequency.value = 2000;
+        filter.Q.value = 1;
+        const noiseGain = ctx.createGain();
+        noise.connect(filter);
+        filter.connect(noiseGain);
+        noiseGain.connect(ctx.destination);
+        noiseGain.gain.setValueAtTime(0, ctx.currentTime + 0.4);
+        noiseGain.gain.linearRampToValueAtTime(0.4, ctx.currentTime + 0.5);
+        noiseGain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.8);
+        noise.start(ctx.currentTime + 0.4);
+        noise.stop(ctx.currentTime + 0.8);
+      },
+
+      'power-up-2': () => {
+        const ctx = getAudioContext();
+        // 多层蓄力
+        for (let i = 0; i < 3; i++) {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          const startFreq = 200 + i * 100;
+          const endFreq = 600 + i * 200;
+          osc.frequency.setValueAtTime(startFreq, ctx.currentTime + i * 0.15);
+          osc.frequency.exponentialRampToValueAtTime(endFreq, ctx.currentTime + i * 0.15 + 0.2);
+          gain.gain.setValueAtTime(0.15, ctx.currentTime + i * 0.15);
+          gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + i * 0.15 + 0.25);
+          osc.start(ctx.currentTime + i * 0.15);
+          osc.stop(ctx.currentTime + i * 0.15 + 0.25);
+        }
+
+        // 最终爆发
+        setTimeout(() => {
+          const bufferSize = ctx.sampleRate * 0.4;
+          const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+          const data = buffer.getChannelData(0);
+          for (let i = 0; i < bufferSize; i++) {
+            data[i] = Math.random() * 2 - 1;
+          }
+          const noise = ctx.createBufferSource();
+          noise.buffer = buffer;
+          const gain = ctx.createGain();
+          const filter = ctx.createBiquadFilter();
+          filter.type = 'lowpass';
+          filter.frequency.value = 1500;
+          noise.connect(filter);
+          filter.connect(gain);
+          gain.connect(ctx.destination);
+          gain.gain.setValueAtTime(0.5, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4);
+          noise.start();
+          noise.stop(ctx.currentTime + 0.4);
+        }, 500);
+      },
+
+      'special-1': () => {
+        const ctx = getAudioContext();
+        // 神龙摆尾风格
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.frequency.setValueAtTime(200, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(2000, ctx.currentTime + 0.1);
+        osc.frequency.exponentialRampToValueAtTime(100, ctx.currentTime + 0.3);
+        gain.gain.setValueAtTime(0.3, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.3);
+
+        // 回响
+        setTimeout(() => {
+          const osc2 = ctx.createOscillator();
+          const gain2 = ctx.createGain();
+          osc2.type = 'sine';
+          osc2.connect(gain2);
+          gain2.connect(ctx.destination);
+          osc2.frequency.setValueAtTime(80, ctx.currentTime);
+          osc2.frequency.exponentialRampToValueAtTime(40, ctx.currentTime + 0.5);
+          gain2.gain.setValueAtTime(0.4, ctx.currentTime);
+          gain2.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
+          osc2.start();
+          osc2.stop(ctx.currentTime + 0.5);
+        }, 100);
+      },
+
+      'special-2': () => {
+        const ctx = getAudioContext();
+        // 升龙拳风格
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'square';
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.frequency.setValueAtTime(150, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(1200, ctx.currentTime + 0.15);
+        gain.gain.setValueAtTime(0.25, ctx.currentTime);
+        gain.gain.linearRampToValueAtTime(0.35, ctx.currentTime + 0.1);
+        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.25);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.25);
+
+        // 高频泛音
+        const osc2 = ctx.createOscillator();
+        const gain2 = ctx.createGain();
+        osc2.type = 'sine';
+        osc2.connect(gain2);
+        gain2.connect(ctx.destination);
+        osc2.frequency.setValueAtTime(3000, ctx.currentTime);
+        osc2.frequency.exponentialRampToValueAtTime(500, ctx.currentTime + 0.2);
+        gain2.gain.setValueAtTime(0.1, ctx.currentTime);
+        gain2.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.2);
+        osc2.start();
+        osc2.stop(ctx.currentTime + 0.2);
+      },
+
+      'combo-finish': () => {
+        const ctx = getAudioContext();
+        // 快速连击
+        for (let i = 0; i < 4; i++) {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'square';
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.frequency.setValueAtTime(300 + i * 100, ctx.currentTime + i * 0.08);
+          osc.frequency.exponentialRampToValueAtTime(80, ctx.currentTime + i * 0.08 + 0.06);
+          gain.gain.setValueAtTime(0.2, ctx.currentTime + i * 0.08);
+          gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + i * 0.08 + 0.06);
+          osc.start(ctx.currentTime + i * 0.08);
+          osc.stop(ctx.currentTime + i * 0.08 + 0.06);
+        }
+
+        // 终结
+        setTimeout(() => {
+          const bufferSize = ctx.sampleRate * 0.4;
+          const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+          const data = buffer.getChannelData(0);
+          for (let i = 0; i < bufferSize; i++) {
+            data[i] = Math.random() * 2 - 1;
+          }
+          const noise = ctx.createBufferSource();
+          noise.buffer = buffer;
+          const filter = ctx.createBiquadFilter();
+          filter.type = 'lowpass';
+          filter.frequency.setValueAtTime(2000, ctx.currentTime);
+          filter.frequency.exponentialRampToValueAtTime(50, ctx.currentTime + 0.4);
+          const gain = ctx.createGain();
+          noise.connect(filter);
+          filter.connect(gain);
+          gain.connect(ctx.destination);
+          gain.gain.setValueAtTime(0.5, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4);
+          noise.start();
+          noise.stop(ctx.currentTime + 0.4);
+        }, 350);
+      },
+
+      'awakening': () => {
+        const ctx = getAudioContext();
+        // 能量汇聚
+        const osc1 = ctx.createOscillator();
+        const gain1 = ctx.createGain();
+        osc1.type = 'sine';
+        osc1.connect(gain1);
+        gain1.connect(ctx.destination);
+        osc1.frequency.setValueAtTime(100, ctx.currentTime);
+        osc1.frequency.exponentialRampToValueAtTime(500, ctx.currentTime + 0.8);
+        gain1.gain.setValueAtTime(0.1, ctx.currentTime);
+        gain1.gain.linearRampToValueAtTime(0.3, ctx.currentTime + 0.6);
+        gain1.gain.linearRampToValueAtTime(0.01, ctx.currentTime + 0.9);
+        osc1.start();
+        osc1.stop(ctx.currentTime + 0.9);
+
+        // 泛音层
+        const osc2 = ctx.createOscillator();
+        const gain2 = ctx.createGain();
+        osc2.type = 'triangle';
+        osc2.connect(gain2);
+        gain2.connect(ctx.destination);
+        osc2.frequency.setValueAtTime(200, ctx.currentTime);
+        osc2.frequency.exponentialRampToValueAtTime(1000, ctx.currentTime + 0.8);
+        gain2.gain.setValueAtTime(0.05, ctx.currentTime);
+        gain2.gain.linearRampToValueAtTime(0.15, ctx.currentTime + 0.6);
+        gain2.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.9);
+        osc2.start();
+        osc2.stop(ctx.currentTime + 0.9);
+
+        // 爆发
+        setTimeout(() => {
+          const bufferSize = ctx.sampleRate * 0.5;
+          const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+          const data = buffer.getChannelData(0);
+          for (let i = 0; i < bufferSize; i++) {
+            data[i] = Math.random() * 2 - 1;
+          }
+          const noise = ctx.createBufferSource();
+          noise.buffer = buffer;
+          const filter = ctx.createBiquadFilter();
+          filter.type = 'bandpass';
+          filter.frequency.value = 1500;
+          filter.Q.value = 2;
+          const gain = ctx.createGain();
+          noise.connect(filter);
+          filter.connect(gain);
+          gain.connect(ctx.destination);
+          gain.gain.setValueAtTime(0.5, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
+          noise.start();
+          noise.stop(ctx.currentTime + 0.5);
+
+          // 高频闪光音
+          const spark = ctx.createOscillator();
+          const sparkGain = ctx.createGain();
+          spark.type = 'sine';
+          spark.connect(sparkGain);
+          sparkGain.connect(ctx.destination);
+          spark.frequency.setValueAtTime(2000, ctx.currentTime);
+          spark.frequency.exponentialRampToValueAtTime(5000, ctx.currentTime + 0.1);
+          spark.frequency.exponentialRampToValueAtTime(1000, ctx.currentTime + 0.3);
+          sparkGain.gain.setValueAtTime(0.15, ctx.currentTime);
+          sparkGain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
+          spark.start();
+          spark.stop(ctx.currentTime + 0.3);
+        }, 800);
+      }
+    };
+
+    // ========== 交互逻辑 ==========
+    const selectedSounds = {
+      small: null,
+      medium: null,
+      big: null
+    };
+
+    // 点击播放音效
+    document.querySelectorAll('.sound-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const soundName = btn.dataset.sound;
+        const category = btn.dataset.category;
+
+        // 播放音效
+        if (sounds[soundName]) {
+          sounds[soundName]();
+        }
+
+        // 选中状态
+        document.querySelectorAll(`.sound-btn[data-category="${category}"]`).forEach(b => {
+          b.classList.remove('selected');
+        });
+        btn.classList.add('selected');
+
+        // 记录选择
+        selectedSounds[category] = {
+          name: soundName,
+          label: btn.querySelector('span:first-child').textContent
+        };
+
+        // 更新显示
+        document.getElementById(category + 'Choice').textContent = selectedSounds[category].label;
+
+        // 检查是否全部选择
+        const playAllBtn = document.getElementById('playAllBtn');
+        if (selectedSounds.small && selectedSounds.medium && selectedSounds.big) {
+          playAllBtn.disabled = false;
+        }
+      });
+    });
+
+    // 播放组合演示
+    document.getElementById('playAllBtn').addEventListener('click', async function() {
+      this.disabled = true;
+      this.textContent = '🎬 播放中...';
+
+      // 播放序列: 小招 x3 -> 中招 x2 -> 大招
+      for (let i = 0; i < 3; i++) {
+        sounds[selectedSounds.small.name]();
+        await new Promise(r => setTimeout(r, 400));
+      }
+
+      for (let i = 0; i < 2; i++) {
+        sounds[selectedSounds.medium.name]();
+        await new Promise(r => setTimeout(r, 500));
+      }
+
+      sounds[selectedSounds.big.name]();
+
+      await new Promise(r => setTimeout(r, 1500));
+      this.disabled = false;
+      this.textContent = '🎬 播放组合演示';
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SoulBuilder - 开源素材风格总览对比</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #0D0208;
+      color: #00FF41;
+      font-family: 'Courier New', monospace;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 1.5rem;
+      margin-bottom: 10px;
+      text-shadow: 0 0 20px #00FF41;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: #008F11;
+      margin-bottom: 30px;
+      font-size: 0.85rem;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    @media (max-width: 1000px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+
+    .card {
+      background: #000;
+      border: 2px solid #00FF41;
+      padding: 15px;
+      box-shadow: 0 0 15px rgba(0, 255, 65, 0.2);
+    }
+
+    .card.recommended {
+      border-color: #FBBF24;
+      box-shadow: 0 0 20px rgba(251, 191, 36, 0.3);
+    }
+
+    .card.recommended::before {
+      content: "★ 推荐";
+      display: block;
+      text-align: center;
+      color: #FBBF24;
+      font-size: 0.8rem;
+      margin-bottom: 10px;
+    }
+
+    .card h2 {
+      font-size: 1rem;
+      margin-bottom: 5px;
+      text-align: center;
+    }
+
+    .card .license {
+      font-size: 0.7rem;
+      color: #008F11;
+      text-align: center;
+      margin-bottom: 15px;
+    }
+
+    .card .license a { color: #00FF41; }
+
+    .card .badge {
+      display: inline-block;
+      background: #00FF41;
+      color: #000;
+      padding: 2px 6px;
+      font-size: 0.6rem;
+      border-radius: 2px;
+      margin-left: 5px;
+    }
+
+    .demo-area {
+      background: #0D0208;
+      height: 180px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 10px;
+      border: 1px solid #003d00;
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      justify-content: center;
+      margin-bottom: 10px;
+    }
+
+    .btn {
+      padding: 5px 10px;
+      background: transparent;
+      border: 1px solid #00FF41;
+      color: #00FF41;
+      cursor: pointer;
+      font-family: 'Courier New', monospace;
+      font-size: 0.7rem;
+      transition: all 0.2s;
+    }
+
+    .btn:hover { background: rgba(0, 255, 65, 0.2); }
+    .btn.active {
+      background: #00FF41;
+      color: #000;
+    }
+
+    .stats {
+      font-size: 0.65rem;
+      color: #888;
+      border-top: 1px solid #003d00;
+      padding-top: 10px;
+    }
+
+    .stats table { width: 100%; border-collapse: collapse; }
+    .stats td { padding: 2px 5px; }
+    .stats td:first-child { color: #008F11; }
+    .stats .pro { color: #4ADE80; }
+    .stats .con { color: #F87171; }
+
+    /* === Canvas A - Kung Fu Master === */
+    #canvasA { background: #000; }
+
+    /* === CSS DOM B - Martial Arts Guy === */
+    .sprite-b {
+      width: 48px;
+      height: 64px;
+      position: relative;
+    }
+
+    .sprite-b .head {
+      width: 16px;
+      height: 14px;
+      background: #00FF41;
+      border-radius: 4px;
+      position: absolute;
+      top: 0;
+      left: 16px;
+      box-shadow: 0 0 8px #00FF41;
+    }
+
+    .sprite-b .body {
+      width: 24px;
+      height: 20px;
+      background: #00FF41;
+      position: absolute;
+      top: 14px;
+      left: 12px;
+      box-shadow: 0 0 8px #00FF41;
+    }
+
+    .sprite-b .arm {
+      width: 8px;
+      height: 18px;
+      background: #00FF41;
+      position: absolute;
+      top: 14px;
+      box-shadow: 0 0 5px #00FF41;
+      transform-origin: top center;
+    }
+
+    .sprite-b .arm.left { left: 4px; }
+    .sprite-b .arm.right { right: 4px; }
+
+    .sprite-b .leg {
+      width: 10px;
+      height: 24px;
+      background: #00FF41;
+      position: absolute;
+      top: 34px;
+      box-shadow: 0 0 5px #00FF41;
+      transform-origin: top center;
+    }
+
+    .sprite-b .leg.left { left: 12px; }
+    .sprite-b .leg.right { right: 12px; }
+
+    .sprite-b.idle .body { animation: breathe-b 1s ease-in-out infinite; }
+    .sprite-b.idle .head { animation: breathe-head-b 1s ease-in-out infinite; }
+    .sprite-b.punch .arm.right { animation: punch-arm-b 0.4s ease-out infinite; }
+    .sprite-b.punch .body { animation: punch-body-b 0.4s ease-out infinite; }
+    .sprite-b.kick .leg.right { animation: kick-leg-b 0.5s ease-out infinite; }
+    .sprite-b.kick .body { animation: kick-body-b 0.5s ease-out infinite; }
+    .sprite-b.victory .body { animation: victory-body 0.3s ease-in-out infinite; background: #FBBF24; }
+
+    @keyframes breathe-b { 0%, 100% { transform: scaleY(1); } 50% { transform: scaleY(1.05); } }
+    @keyframes breathe-head-b { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-2px); } }
+    @keyframes punch-arm-b { 0%, 100% { transform: rotate(0deg) translateX(0); width: 8px; } 40% { transform: rotate(-10deg) translateX(30px); width: 32px; } }
+    @keyframes punch-body-b { 0%, 100% { transform: translateX(0); } 40% { transform: translateX(5px); } }
+    @keyframes kick-leg-b { 0%, 100% { transform: rotate(0deg); height: 24px; } 40% { transform: rotate(60deg); height: 36px; } }
+    @keyframes kick-body-b { 0%, 100% { transform: translateX(0) rotate(0deg); } 40% { transform: translateX(-5px) rotate(-5deg); } }
+    @keyframes victory-body { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+
+    /* === CSS box-shadow C - Kung Fu Man NES === */
+    .pixel-c {
+      width: 4px;
+      height: 4px;
+      background: #00FF41;
+      filter: drop-shadow(0 0 5px #00FF41);
+    }
+
+    .pixel-c.idle { animation: idle-c 0.8s steps(1) infinite; }
+    .pixel-c.punch { animation: punch-c 0.4s steps(1) infinite; }
+    .pixel-c.kick { animation: kick-c 0.5s steps(1) infinite; }
+    .pixel-c.victory { animation: victory-c 0.8s steps(1) infinite; }
+
+    @keyframes idle-c {
+      0%, 100% { box-shadow: 8px 0 0 #00FF41,12px 0 0 #00FF41,4px 4px 0 #00FF41,8px 4px 0 #00FF41,12px 4px 0 #00FF41,16px 4px 0 #00FF41,4px 8px 0 #00FF41,8px 8px 0 #00FF41,12px 8px 0 #00FF41,16px 8px 0 #00FF41,8px 12px 0 #00FF41,12px 12px 0 #00FF41,0px 16px 0 #00FF41,4px 16px 0 #00FF41,8px 16px 0 #00FF41,12px 16px 0 #00FF41,16px 16px 0 #00FF41,20px 16px 0 #00FF41,0px 20px 0 #00FF41,4px 20px 0 #00FF41,8px 20px 0 #00FF41,12px 20px 0 #00FF41,16px 20px 0 #00FF41,20px 20px 0 #00FF41,4px 24px 0 #00FF41,8px 24px 0 #00FF41,12px 24px 0 #00FF41,16px 24px 0 #00FF41,-8px 20px 0 #00FF41,-4px 20px 0 #00FF41,24px 20px 0 #00FF41,28px 20px 0 #00FF41,4px 28px 0 #00FF41,8px 28px 0 #00FF41,16px 28px 0 #00FF41,20px 28px 0 #00FF41,4px 32px 0 #00FF41,8px 32px 0 #00FF41,16px 32px 0 #00FF41,20px 32px 0 #00FF41,4px 36px 0 #00FF41,20px 36px 0 #00FF41; }
+      50% { box-shadow: 8px -2px 0 #00FF41,12px -2px 0 #00FF41,4px 2px 0 #00FF41,8px 2px 0 #00FF41,12px 2px 0 #00FF41,16px 2px 0 #00FF41,4px 6px 0 #00FF41,8px 6px 0 #00FF41,12px 6px 0 #00FF41,16px 6px 0 #00FF41,8px 10px 0 #00FF41,12px 10px 0 #00FF41,0px 14px 0 #00FF41,4px 14px 0 #00FF41,8px 14px 0 #00FF41,12px 14px 0 #00FF41,16px 14px 0 #00FF41,20px 14px 0 #00FF41,0px 18px 0 #00FF41,4px 18px 0 #00FF41,8px 18px 0 #00FF41,12px 18px 0 #00FF41,16px 18px 0 #00FF41,20px 18px 0 #00FF41,4px 22px 0 #00FF41,8px 22px 0 #00FF41,12px 22px 0 #00FF41,16px 22px 0 #00FF41,-8px 18px 0 #00FF41,-4px 18px 0 #00FF41,24px 18px 0 #00FF41,28px 18px 0 #00FF41,4px 26px 0 #00FF41,8px 26px 0 #00FF41,16px 26px 0 #00FF41,20px 26px 0 #00FF41,4px 30px 0 #00FF41,8px 30px 0 #00FF41,16px 30px 0 #00FF41,20px 30px 0 #00FF41,4px 34px 0 #00FF41,20px 34px 0 #00FF41; }
+    }
+
+    @keyframes punch-c {
+      0%, 100% { box-shadow: 8px 0 0 #00FF41,12px 0 0 #00FF41,4px 4px 0 #00FF41,8px 4px 0 #00FF41,12px 4px 0 #00FF41,16px 4px 0 #00FF41,4px 8px 0 #00FF41,8px 8px 0 #00FF41,12px 8px 0 #00FF41,16px 8px 0 #00FF41,8px 12px 0 #00FF41,12px 12px 0 #00FF41,0px 16px 0 #00FF41,4px 16px 0 #00FF41,8px 16px 0 #00FF41,12px 16px 0 #00FF41,16px 16px 0 #00FF41,20px 16px 0 #00FF41,0px 20px 0 #00FF41,4px 20px 0 #00FF41,8px 20px 0 #00FF41,12px 20px 0 #00FF41,16px 20px 0 #00FF41,20px 20px 0 #00FF41,4px 24px 0 #00FF41,8px 24px 0 #00FF41,12px 24px 0 #00FF41,16px 24px 0 #00FF41,-8px 20px 0 #00FF41,-4px 20px 0 #00FF41,24px 20px 0 #00FF41,28px 20px 0 #00FF41,32px 20px 0 #00FF41,36px 20px 0 #00FF41,40px 20px 0 #00FF41,4px 28px 0 #00FF41,8px 28px 0 #00FF41,16px 28px 0 #00FF41,20px 28px 0 #00FF41,4px 32px 0 #00FF41,8px 32px 0 #00FF41,16px 32px 0 #00FF41,20px 32px 0 #00FF41,4px 36px 0 #00FF41,20px 36px 0 #00FF41; }
+      50% { box-shadow: 8px 0 0 #00FF41,12px 0 0 #00FF41,4px 4px 0 #00FF41,8px 4px 0 #00FF41,12px 4px 0 #00FF41,16px 4px 0 #00FF41,4px 8px 0 #00FF41,8px 8px 0 #00FF41,12px 8px 0 #00FF41,16px 8px 0 #00FF41,8px 12px 0 #00FF41,12px 12px 0 #00FF41,-4px 16px 0 #00FF41,0px 16px 0 #00FF41,4px 16px 0 #00FF41,8px 16px 0 #00FF41,12px 16px 0 #00FF41,16px 16px 0 #00FF41,-4px 20px 0 #00FF41,0px 20px 0 #00FF41,4px 20px 0 #00FF41,8px 20px 0 #00FF41,12px 20px 0 #00FF41,16px 20px 0 #00FF41,0px 24px 0 #00FF41,4px 24px 0 #00FF41,8px 24px 0 #00FF41,12px 24px 0 #00FF41,20px 12px 0 #00FF41,24px 12px 0 #00FF41,28px 12px 0 #00FF41,32px 12px 0 #00FF41,36px 12px 0 #00FF41,40px 12px 0 #00FF41,44px 12px 0 #00FF41,4px 28px 0 #00FF41,8px 28px 0 #00FF41,16px 28px 0 #00FF41,20px 28px 0 #00FF41,4px 32px 0 #00FF41,8px 32px 0 #00FF41,16px 32px 0 #00FF41,20px 32px 0 #00FF41,4px 36px 0 #00FF41,20px 36px 0 #00FF41; }
+    }
+
+    @keyframes kick-c {
+      0%, 100% { box-shadow: 8px 0 0 #00FF41,12px 0 0 #00FF41,4px 4px 0 #00FF41,8px 4px 0 #00FF41,12px 4px 0 #00FF41,16px 4px 0 #00FF41,4px 8px 0 #00FF41,8px 8px 0 #00FF41,12px 8px 0 #00FF41,16px 8px 0 #00FF41,8px 12px 0 #00FF41,12px 12px 0 #00FF41,0px 16px 0 #00FF41,4px 16px 0 #00FF41,8px 16px 0 #00FF41,12px 16px 0 #00FF41,16px 16px 0 #00FF41,20px 16px 0 #00FF41,0px 20px 0 #00FF41,4px 20px 0 #00FF41,8px 20px 0 #00FF41,12px 20px 0 #00FF41,16px 20px 0 #00FF41,20px 20px 0 #00FF41,4px 24px 0 #00FF41,8px 24px 0 #00FF41,12px 24px 0 #00FF41,16px 24px 0 #00FF41,-8px 20px 0 #00FF41,-4px 20px 0 #00FF41,24px 20px 0 #00FF41,28px 20px 0 #00FF41,4px 28px 0 #00FF41,8px 28px 0 #00FF41,16px 28px 0 #00FF41,20px 28px 0 #00FF41,4px 32px 0 #00FF41,8px 32px 0 #00FF41,16px 32px 0 #00FF41,20px 32px 0 #00FF41,4px 36px 0 #00FF41,20px 36px 0 #00FF41; }
+      50% { box-shadow: 8px 0 0 #00FF41,12px 0 0 #00FF41,4px 4px 0 #00FF41,8px 4px 0 #00FF41,12px 4px 0 #00FF41,16px 4px 0 #00FF41,4px 8px 0 #00FF41,8px 8px 0 #00FF41,12px 8px 0 #00FF41,16px 8px 0 #00FF41,8px 12px 0 #00FF41,12px 12px 0 #00FF41,0px 16px 0 #00FF41,4px 16px 0 #00FF41,8px 16px 0 #00FF41,12px 16px 0 #00FF41,16px 16px 0 #00FF41,20px 16px 0 #00FF41,0px 20px 0 #00FF41,4px 20px 0 #00FF41,8px 20px 0 #00FF41,12px 20px 0 #00FF41,16px 20px 0 #00FF41,20px 20px 0 #00FF41,4px 24px 0 #00FF41,8px 24px 0 #00FF41,12px 24px 0 #00FF41,16px 24px 0 #00FF41,-4px 16px 0 #00FF41,0px 16px 0 #00FF41,24px 16px 0 #00FF41,28px 16px 0 #00FF41,4px 28px 0 #00FF41,8px 28px 0 #00FF41,24px 28px 0 #00FF41,28px 28px 0 #00FF41,32px 28px 0 #00FF41,36px 28px 0 #00FF41,40px 28px 0 #00FF41,4px 32px 0 #00FF41,36px 32px 0 #00FF41,40px 32px 0 #00FF41,4px 36px 0 #00FF41,40px 36px 0 #00FF41; }
+    }
+
+    @keyframes victory-c {
+      0%, 100% { box-shadow: 8px -8px 0 #FBBF24,12px -8px 0 #FBBF24,4px -4px 0 #FBBF24,8px -4px 0 #FBBF24,12px -4px 0 #FBBF24,16px -4px 0 #FBBF24,4px 0px 0 #00FF41,8px 0px 0 #00FF41,12px 0px 0 #00FF41,16px 0px 0 #00FF41,8px 4px 0 #00FF41,12px 4px 0 #00FF41,0px 8px 0 #00FF41,4px 8px 0 #00FF41,8px 8px 0 #00FF41,12px 8px 0 #00FF41,16px 8px 0 #00FF41,20px 8px 0 #00FF41,-16px 0px 0 #00FF41,-12px 0px 0 #00FF41,28px 0px 0 #00FF41,32px 0px 0 #00FF41,4px 12px 0 #00FF41,8px 12px 0 #00FF41,12px 12px 0 #00FF41,16px 12px 0 #00FF41,4px 16px 0 #00FF41,8px 16px 0 #00FF41,16px 16px 0 #00FF41,20px 16px 0 #00FF41,4px 20px 0 #00FF41,8px 20px 0 #00FF41,16px 20px 0 #00FF41,20px 20px 0 #00FF41,4px 24px 0 #00FF41,20px 24px 0 #00FF41; filter: drop-shadow(0 0 10px #FBBF24); }
+      50% { box-shadow: 8px -12px 0 #FBBF24,12px -12px 0 #FBBF24,4px -8px 0 #FBBF24,8px -8px 0 #FBBF24,12px -8px 0 #FBBF24,16px -8px 0 #FBBF24,4px -4px 0 #00FF41,8px -4px 0 #00FF41,12px -4px 0 #00FF41,16px -4px 0 #00FF41,8px 0px 0 #00FF41,12px 0px 0 #00FF41,0px 4px 0 #00FF41,4px 4px 0 #00FF41,8px 4px 0 #00FF41,12px 4px 0 #00FF41,16px 4px 0 #00FF41,20px 4px 0 #00FF41,-20px -4px 0 #00FF41,-16px -4px 0 #00FF41,32px -4px 0 #00FF41,36px -4px 0 #00FF41,4px 8px 0 #00FF41,8px 8px 0 #00FF41,12px 8px 0 #00FF41,16px 8px 0 #00FF41,4px 12px 0 #00FF41,8px 12px 0 #00FF41,16px 12px 0 #00FF41,20px 12px 0 #00FF41,4px 16px 0 #00FF41,8px 16px 0 #00FF41,16px 16px 0 #00FF41,20px 16px 0 #00FF41,4px 20px 0 #00FF41,20px 20px 0 #00FF41; filter: drop-shadow(0 0 15px #FBBF24); }
+    }
+
+    .footer {
+      text-align: center;
+      margin-top: 30px;
+      padding-top: 20px;
+      border-top: 1px solid #003d00;
+      color: #008F11;
+      font-size: 0.75rem;
+    }
+
+    .footer a { color: #00FF41; }
+  </style>
+</head>
+<body>
+  <h1>SoulBuilder 动画素材风格对比</h1>
+  <p class="subtitle">三种开源素材风格 · 三种技术实现 · 综合评估选择</p>
+
+  <div class="grid">
+    <!-- A: Kung Fu Master -->
+    <div class="card recommended">
+      <h2>A: Kung Fu Master</h2>
+      <div class="license">
+        <a href="https://opengameart.org/content/2d-kung-fu-master" target="_blank">OpenGameArt</a> |
+        GPL 2.0 | Canvas 2D
+      </div>
+      <div class="demo-area">
+        <canvas id="canvasA" width="120" height="150"></canvas>
+      </div>
+      <div class="controls" data-type="a">
+        <button class="btn active" data-action="idle">Idle</button>
+        <button class="btn" data-action="punch">Punch</button>
+        <button class="btn" data-action="kick">Kick</button>
+        <button class="btn" data-action="jump">Jump</button>
+      </div>
+      <div class="stats">
+        <table>
+          <tr><td>包体积</td><td>&lt;5KB</td></tr>
+          <tr><td>精细度</td><td>⭐⭐⭐⭐</td></tr>
+          <tr><td>可编程</td><td class="pro">✓ 完全可控</td></tr>
+          <tr><td>动态改色</td><td class="pro">✓ 支持</td></tr>
+          <tr><td>维护成本</td><td class="con">✗ 手写帧数据</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- B: Martial Arts Guy -->
+    <div class="card">
+      <h2>B: Martial Arts Guy</h2>
+      <div class="license">
+        <a href="https://opengameart.org/content/martial-arts-guy-sprite-animations" target="_blank">OpenGameArt</a> |
+        CC-BY 3.0 | CSS DOM
+      </div>
+      <div class="demo-area">
+        <div id="spriteB" class="sprite-b idle">
+          <div class="head"></div>
+          <div class="body"></div>
+          <div class="arm left"></div>
+          <div class="arm right"></div>
+          <div class="leg left"></div>
+          <div class="leg right"></div>
+        </div>
+      </div>
+      <div class="controls" data-type="b">
+        <button class="btn active" data-action="idle">Idle</button>
+        <button class="btn" data-action="punch">Punch</button>
+        <button class="btn" data-action="kick">Kick</button>
+        <button class="btn" data-action="victory">Victory</button>
+      </div>
+      <div class="stats">
+        <table>
+          <tr><td>包体积</td><td>&lt;10KB</td></tr>
+          <tr><td>精细度</td><td>⭐⭐⭐</td></tr>
+          <tr><td>可编程</td><td class="pro">✓ DOM可控</td></tr>
+          <tr><td>设计师友好</td><td class="pro">✓ CSS调整</td></tr>
+          <tr><td>像素精度</td><td class="con">✗ 不如Canvas</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- C: Kung Fu Man NES -->
+    <div class="card">
+      <h2>C: Kung Fu Man NES</h2>
+      <div class="license">
+        <a href="https://opengameart.org/content/rpg-asset-character-kung-fu-man-gameboy" target="_blank">OpenGameArt</a> |
+        <span class="badge">CC0</span> CSS box-shadow
+      </div>
+      <div class="demo-area">
+        <div id="pixelC" class="pixel-c idle"></div>
+      </div>
+      <div class="controls" data-type="c">
+        <button class="btn active" data-action="idle">Idle</button>
+        <button class="btn" data-action="punch">Punch</button>
+        <button class="btn" data-action="kick">Kick</button>
+        <button class="btn" data-action="victory">Victory</button>
+      </div>
+      <div class="stats">
+        <table>
+          <tr><td>包体积</td><td>&lt;2KB</td></tr>
+          <tr><td>精细度</td><td>⭐⭐</td></tr>
+          <tr><td>可商用</td><td class="pro">✓ CC0公共领域</td></tr>
+          <tr><td>零资源</td><td class="pro">✓ 纯CSS</td></tr>
+          <tr><td>复杂动画</td><td class="con">✗ 困难</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <p>独立Demo页面:
+      <a href="sprite-demo-a-kungfu-master.html">风格A</a> |
+      <a href="sprite-demo-b-martial-arts.html">风格B</a> |
+      <a href="sprite-demo-c-kungfu-nes.html">风格C</a>
+    </p>
+    <p style="margin-top: 10px; color: #666;">SoulBuilder 2.0 Animation Module - 2025-03-17</p>
+  </div>
+
+  <script>
+    // === Canvas A: Kung Fu Master ===
+    const canvasA = document.getElementById('canvasA');
+    const ctxA = canvasA.getContext('2d');
+    const PS_A = 5;
+    const COLOR_A = '#00FF41';
+
+    const FRAMES_A = {
+      idle: [
+        [[7,1],[6,2],[7,2],[8,2],[5,3],[6,3],[7,3],[8,3],[9,3],[5,4],[9,4],[4,5],[5,5],[9,5],[10,5],[5,6],[9,6],[5,7],[6,7],[8,7],[9,7],[5,8],[9,8],[4,9],[5,9],[9,9],[10,9]],
+        [[7,0],[6,1],[7,1],[8,1],[5,2],[6,2],[7,2],[8,2],[9,2],[5,3],[9,3],[4,4],[5,4],[9,4],[10,4],[5,5],[9,5],[5,6],[6,6],[8,6],[9,6],[5,7],[9,7],[4,8],[5,8],[9,8],[10,8]]
+      ],
+      punch: [
+        [[7,1],[6,2],[7,2],[8,2],[5,3],[6,3],[7,3],[8,3],[9,3],[5,4],[9,4],[4,5],[5,5],[9,5],[10,5],[5,6],[9,6],[5,7],[6,7],[8,7],[9,7],[5,8],[9,8],[4,9],[5,9],[9,9],[10,9]],
+        [[7,1],[6,2],[7,2],[8,2],[5,3],[6,3],[7,3],[8,3],[9,3],[5,4],[9,4],[4,5],[5,5],[9,5],[10,5],[11,5],[12,5],[13,5],[14,5],[5,6],[9,6],[5,7],[6,7],[8,7],[9,7],[5,8],[9,8],[4,9],[5,9],[9,9],[10,9]]
+      ],
+      kick: [
+        [[7,1],[6,2],[7,2],[8,2],[5,3],[6,3],[7,3],[8,3],[9,3],[5,4],[9,4],[4,5],[5,5],[9,5],[10,5],[5,6],[9,6],[5,7],[6,7],[8,7],[9,7],[5,8],[9,8],[4,9],[5,9],[9,9],[10,9]],
+        [[7,1],[6,2],[7,2],[8,2],[5,3],[6,3],[7,3],[8,3],[9,3],[5,4],[9,4],[4,5],[5,5],[9,5],[10,5],[5,6],[9,6],[4,7],[5,7],[8,7],[9,7],[10,7],[11,7],[12,7],[13,7],[5,8],[5,9],[5,10]]
+      ],
+      jump: [
+        [[7,2],[6,3],[7,3],[8,3],[5,4],[6,4],[7,4],[8,4],[9,4],[5,5],[9,5],[4,6],[5,6],[9,6],[10,6],[5,7],[9,7],[4,8],[5,8],[9,8],[10,8],[3,9],[4,9],[10,9],[11,9]],
+        [[7,0],[6,1],[7,1],[8,1],[5,2],[6,2],[7,2],[8,2],[9,2],[5,3],[9,3],[4,4],[5,4],[9,4],[10,4],[5,5],[9,5],[5,6],[6,6],[8,6],[9,6],[5,7],[6,7],[8,7],[9,7]]
+      ]
+    };
+
+    let actionA = 'idle';
+    let frameA = 0;
+    const offXA = 20;
+    const offYA = 15;
+
+    function drawA() {
+      ctxA.clearRect(0, 0, 120, 150);
+      const pixels = FRAMES_A[actionA][frameA % FRAMES_A[actionA].length];
+      ctxA.fillStyle = COLOR_A;
+      pixels.forEach(([x, y]) => {
+        ctxA.fillRect(offXA + x * PS_A, offYA + y * PS_A, PS_A, PS_A);
+      });
+    }
+
+    function animateA() {
+      drawA();
+      frameA++;
+      setTimeout(() => requestAnimationFrame(animateA), 200);
+    }
+
+    // === Controls ===
+    document.querySelectorAll('.controls[data-type="a"] .btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.controls[data-type="a"] .btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        actionA = btn.dataset.action;
+        frameA = 0;
+      });
+    });
+
+    document.querySelectorAll('.controls[data-type="b"] .btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.controls[data-type="b"] .btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('spriteB').className = 'sprite-b ' + btn.dataset.action;
+      });
+    });
+
+    document.querySelectorAll('.controls[data-type="c"] .btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.controls[data-type="c"] .btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('pixelC').className = 'pixel-c ' + btn.dataset.action;
+      });
+    });
+
+    // Start
+    animateA();
+  </script>
+</body>
+</html>

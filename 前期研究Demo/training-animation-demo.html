@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SoulBuilder - Agent Training Animation</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #000;
+      font-family: 'Courier New', monospace;
+      overflow: hidden;
+      height: 100vh;
+    }
+
+    #matrix-bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+    }
+
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+    }
+
+    .fighter-container {
+      position: relative;
+      width: 200px;
+      height: 280px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #fighter-canvas {
+      position: relative;
+      z-index: 11;
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+    }
+
+    /* 光环效果 */
+    .glow-ring {
+      position: absolute;
+      width: 180px;
+      height: 180px;
+      border: 2px solid rgba(0, 255, 65, 0.3);
+      border-radius: 50%;
+      animation: pulse-ring 2s ease-out infinite;
+    }
+
+    @keyframes pulse-ring {
+      0% { transform: scale(0.8); opacity: 1; }
+      100% { transform: scale(1.5); opacity: 0; }
+    }
+
+    .progress-section {
+      text-align: center;
+      margin-top: 30px;
+      z-index: 12;
+    }
+
+    .phase-label {
+      color: #0f0;
+      font-size: 1.5rem;
+      text-transform: uppercase;
+      letter-spacing: 4px;
+      margin-bottom: 20px;
+      text-shadow: 0 0 10px #0f0;
+    }
+
+    .progress-bar {
+      width: 300px;
+      height: 6px;
+      background: rgba(0, 255, 65, 0.1);
+      border: 1px solid #0f0;
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #0f0, #0a0);
+      width: 0%;
+      transition: width 0.3s ease;
+      box-shadow: 0 0 10px #0f0;
+    }
+
+    .progress-text {
+      color: #0f0;
+      font-size: 1rem;
+      margin-top: 10px;
+    }
+
+    .skill-text {
+      color: #0f0;
+      font-size: 2rem;
+      margin-top: 20px;
+      opacity: 0;
+      transition: opacity 0.5s;
+      text-shadow: 0 0 20px #0f0;
+    }
+
+    .skill-text.show {
+      opacity: 1;
+    }
+
+    /* 跳过按钮 */
+    .skip-btn {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      padding: 10px 20px;
+      background: transparent;
+      border: 1px solid #0f0;
+      color: #0f0;
+      font-family: 'Courier New', monospace;
+      font-size: 0.9rem;
+      cursor: pointer;
+      z-index: 100;
+      pointer-events: auto;
+      transition: all 0.3s;
+    }
+
+    .skip-btn:hover {
+      background: rgba(0, 255, 65, 0.2);
+      box-shadow: 0 0 15px rgba(0, 255, 65, 0.5);
+    }
+
+    /* 完成对比 */
+    .comparison {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 20;
+      display: none;
+      text-align: center;
+      pointer-events: auto;
+    }
+
+    .comparison.show {
+      display: block;
+      animation: fadeIn 0.5s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translate(-50%, -50%) scale(0.9); }
+      to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+    }
+
+    .comparison-title {
+      color: #0f0;
+      font-size: 1.8rem;
+      margin-bottom: 30px;
+      text-shadow: 0 0 20px #0f0;
+    }
+
+    .comparison-boxes {
+      display: flex;
+      gap: 60px;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .comp-box {
+      padding: 20px 40px;
+      border: 1px solid #0f0;
+      background: rgba(0, 0, 0, 0.8);
+    }
+
+    .comp-box.before { border-color: #666; }
+    .comp-box.after { border-color: #0f0; box-shadow: 0 0 30px rgba(0, 255, 65, 0.3); }
+
+    .comp-label {
+      font-size: 0.8rem;
+      color: #666;
+      margin-bottom: 10px;
+    }
+
+    .comp-box.after .comp-label { color: #0f0; }
+
+    .comp-rank {
+      font-size: 3rem;
+      font-weight: bold;
+    }
+
+    .comp-box.before .comp-rank { color: #666; }
+    .comp-box.after .comp-rank { color: #ffd700; }
+
+    .comp-score {
+      font-size: 1.2rem;
+      margin-top: 5px;
+    }
+
+    .comp-box.before .comp-score { color: #666; }
+    .comp-box.after .comp-score { color: #0f0; }
+
+    .arrow {
+      font-size: 2rem;
+      color: #0f0;
+    }
+
+    .boost-text {
+      color: #4ade80;
+      font-size: 1.5rem;
+      margin-top: 30px;
+    }
+
+    .skills-learned {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+      margin-top: 20px;
+      flex-wrap: wrap;
+    }
+
+    .skill-tag {
+      padding: 8px 15px;
+      border: 1px solid #0f0;
+      color: #0f0;
+      font-size: 0.9rem;
+    }
+
+    .show-me-btn {
+      margin-top: 40px;
+      padding: 15px 40px;
+      background: #0f0;
+      border: none;
+      color: #000;
+      font-family: 'Courier New', monospace;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .show-me-btn:hover {
+      box-shadow: 0 0 30px rgba(0, 255, 65, 0.8);
+      transform: scale(1.05);
+    }
+
+    /* 隐藏状态 */
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+  <!-- Matrix 代码雨背景 -->
+  <canvas id="matrix-bg"></canvas>
+
+  <!-- 主内容 -->
+  <div class="overlay" id="main-content">
+    <div class="fighter-container">
+      <div class="glow-ring" id="glow"></div>
+      <canvas id="fighter-canvas" width="120" height="160"></canvas>
+    </div>
+
+    <div class="progress-section">
+      <div class="phase-label" id="phase-label">Entering Construct...</div>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progress-fill"></div>
+      </div>
+      <div class="progress-text" id="progress-text">0%</div>
+      <div class="skill-text" id="skill-text">I know Kung Fu.</div>
+    </div>
+  </div>
+
+  <!-- 完成对比 -->
+  <div class="comparison" id="comparison">
+    <div class="comparison-title">Training Complete</div>
+    <div class="comparison-boxes">
+      <div class="comp-box before">
+        <div class="comp-label">BEFORE</div>
+        <div class="comp-rank">D</div>
+        <div class="comp-score">45%</div>
+      </div>
+      <div class="arrow">→</div>
+      <div class="comp-box after">
+        <div class="comp-label">AFTER</div>
+        <div class="comp-rank">A</div>
+        <div class="comp-score">87%</div>
+      </div>
+    </div>
+    <div class="boost-text">+42% Boost</div>
+    <div class="skills-learned">
+      <span class="skill-tag">I know Kung Fu</span>
+      <span class="skill-tag">I know Jujitsu</span>
+      <span class="skill-tag">I know Python</span>
+    </div>
+    <button class="show-me-btn" onclick="handleShowMe()">Show me what I can do →</button>
+  </div>
+
+  <!-- 跳过按钮 -->
+  <button class="skip-btn" id="skip-btn" onclick="handleSkip()">Skip →</button>
+
+  <script>
+    // ========================================
+    // 1. Matrix 代码雨背景
+    // ========================================
+    const matrixCanvas = document.getElementById('matrix-bg');
+    const matrixCtx = matrixCanvas.getContext('2d');
+
+    function resizeMatrix() {
+      matrixCanvas.width = window.innerWidth;
+      matrixCanvas.height = window.innerHeight;
+    }
+    resizeMatrix();
+    window.addEventListener('resize', resizeMatrix);
+
+    const chars = 'アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    const fontSize = 14;
+    let columns = Math.floor(matrixCanvas.width / fontSize);
+    let drops = [];
+
+    function initDrops() {
+      columns = Math.floor(matrixCanvas.width / fontSize);
+      drops = Array(columns).fill(1);
+    }
+    initDrops();
+    window.addEventListener('resize', initDrops);
+
+    function drawMatrix() {
+      matrixCtx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+      matrixCtx.fillRect(0, 0, matrixCanvas.width, matrixCanvas.height);
+
+      matrixCtx.fillStyle = '#0f0';
+      matrixCtx.font = fontSize + 'px monospace';
+
+      for (let i = 0; i < drops.length; i++) {
+        const char = chars[Math.floor(Math.random() * chars.length)];
+        const x = i * fontSize;
+        const y = drops[i] * fontSize;
+
+        // 头部更亮
+        if (Math.random() > 0.9) {
+          matrixCtx.fillStyle = '#fff';
+        } else {
+          matrixCtx.fillStyle = '#0f0';
+        }
+
+        matrixCtx.fillText(char, x, y);
+
+        if (y > matrixCanvas.height && Math.random() > 0.975) {
+          drops[i] = 0;
+        }
+        drops[i]++;
+      }
+    }
+
+    setInterval(drawMatrix, 50);
+
+    // ========================================
+    // 2. 像素小人 - 使用 Canvas 硬编码
+    // ========================================
+    const fighterCanvas = document.getElementById('fighter-canvas');
+    const fighterCtx = fighterCanvas.getContext('2d');
+    const PS = 5; // 像素大小
+    const GREEN = '#0f0';
+
+    // 更精细的帧数据
+    const FRAMES = {
+      invisible: [[]],
+      idle: [
+        [[3,0],[2,1],[3,1],[4,1],[2,2],[3,2],[4,2],[1,3],[2,3],[4,3],[5,3],[2,4],[3,4],[4,4],[2,5],[4,5],[2,6],[4,6],[1,7],[5,7]],
+        [[3,0],[2,1],[3,1],[4,1],[2,2],[3,2],[4,2],[1,3],[2,3],[4,3],[5,3],[2,4],[3,4],[4,4],[2,5],[4,5],[2,6],[4,6],[1,7],[5,7],[2,8],[4,8]]
+      ],
+      meditate: [
+        [[3,0],[2,1],[3,1],[4,1],[2,2],[3,2],[4,2],[1,3],[2,3],[3,3],[4,3],[5,3],[2,4],[3,4],[4,4],[1,5],[2,5],[3,5],[4,5],[5,5]],
+        [[2,-1],[3,-1],[4,-1],[3,0],[2,1],[3,1],[4,1],[2,2],[3,2],[4,2],[1,3],[2,3],[3,3],[4,3],[5,3],[2,4],[3,4],[4,4],[1,5],[2,5],[3,5],[4,5],[5,5]]
+      ],
+      punch: [
+        [[3,0],[2,1],[3,1],[4,1],[2,2],[3,2],[4,2],[1,3],[2,3],[4,3],[5,3],[2,4],[4,4],[2,5],[4,5],[2,6],[4,6],[1,7],[5,7]],
+        [[3,0],[2,1],[3,1],[4,1],[2,2],[3,2],[4,2],[1,3],[2,3],[3,3],[4,3],[5,3],[6,3],[7,3],[8,3],[2,4],[4,4],[2,5],[4,5],[2,6],[4,6],[1,7],[5,7]],
+        [[3,0],[2,1],[3,1],[4,1],[2,2],[3,2],[4,2],[1,3],[2,3],[4,3],[5,3],[2,4],[4,4],[2,5],[4,5],[2,6],[4,6],[1,7],[5,7]]
+      ],
+      kick: [
+        [[3,0],[2,1],[3,1],[4,1],[2,2],[3,2],[4,2],[1,3],[2,3],[4,3],[5,3],[2,4],[4,4],[2,5],[4,5],[2,6],[4,6],[1,7],[5,7]],
+        [[3,0],[2,1],[3,1],[4,1],[2,2],[3,2],[4,2],[1,3],[2,3],[4,3],[5,3],[2,4],[4,4],[2,5],[4,5],[2,6],[5,6],[6,6],[7,6],[8,6],[1,7]]
+      ],
+      flip: [
+        [[3,0],[2,1],[3,1],[4,1],[2,2],[3,2],[4,2],[1,3],[2,3],[4,3],[5,3],[2,4],[4,4],[2,5],[4,5],[2,6],[4,6],[1,7],[5,7]],
+        [[2,1],[3,1],[4,1],[1,2],[2,2],[3,2],[4,2],[5,2],[2,3],[3,3],[4,3],[2,4],[3,4],[4,4],[2,5],[3,5],[4,5]],
+        [[3,2],[2,3],[3,3],[4,3],[2,4],[3,4],[4,4],[1,5],[2,5],[4,5],[5,5],[2,6],[4,6],[2,7],[4,7],[1,8],[5,8]]
+      ],
+      awaken: [
+        [[3,0],[2,1],[3,1],[4,1],[2,2],[3,2],[4,2],[1,3],[2,3],[4,3],[5,3],[2,4],[3,4],[4,4],[2,5],[4,5],[2,6],[4,6],[1,7],[5,7]],
+        [[2,-2],[3,-2],[4,-2],[1,-1],[2,-1],[3,-1],[4,-1],[5,-1],[3,0],[2,1],[3,1],[4,1],[2,2],[3,2],[4,2],[1,3],[2,3],[4,3],[5,3],[2,4],[4,4],[2,5],[4,5],[2,6],[4,6],[1,7],[5,7]]
+      ]
+    };
+
+    let currentAction = 'invisible';
+    let currentFrame = 0;
+    let frameCounter = 0;
+
+    function drawFighter() {
+      fighterCtx.clearRect(0, 0, 120, 160);
+
+      const frames = FRAMES[currentAction];
+      if (!frames || frames.length === 0) return;
+
+      const pixels = frames[currentFrame % frames.length];
+      if (!pixels || pixels.length === 0) return;
+
+      fighterCtx.fillStyle = GREEN;
+      fighterCtx.shadowColor = GREEN;
+      fighterCtx.shadowBlur = 10;
+
+      const ox = 30;
+      const oy = 30;
+
+      pixels.forEach(([x, y]) => {
+        fighterCtx.fillRect(ox + x * PS, oy + y * PS, PS, PS);
+      });
+
+      fighterCtx.shadowBlur = 0;
+    }
+
+    function animateFighter() {
+      const frames = FRAMES[currentAction];
+      const frameCount = frames ? frames.length : 1;
+      const delay = currentAction === 'idle' ? 400 : 120;
+
+      drawFighter();
+
+      frameCounter++;
+      if (frameCounter >= delay / 16) {
+        currentFrame = (currentFrame + 1) % frameCount;
+        frameCounter = 0;
+      }
+
+      requestAnimationFrame(animateFighter);
+    }
+
+    animateFighter();
+
+    // ========================================
+    // 3. 动画阶段控制
+    // ========================================
+    const phases = [
+      { name: 'enter', duration: 2000, label: 'Entering Construct...', action: 'invisible' },
+      { name: 'transfer', duration: 3000, label: 'Transferring data...', action: 'meditate' },
+      { name: 'training', duration: 8000, label: 'Training in progress...', action: 'cycle' },
+      { name: 'awakening', duration: 3000, label: 'Awakening...', action: 'awaken' },
+      { name: 'complete', duration: 2000, label: 'Complete', action: 'idle' }
+    ];
+
+    let currentPhaseIndex = 0;
+    let phaseStartTime = 0;
+    let totalProgress = 0;
+    let isSkipped = false;
+    let isComplete = false;
+
+    const phaseLabel = document.getElementById('phase-label');
+    const progressFill = document.getElementById('progress-fill');
+    const progressText = document.getElementById('progress-text');
+    const skillText = document.getElementById('skill-text');
+    const mainContent = document.getElementById('main-content');
+    const comparison = document.getElementById('comparison');
+    const skipBtn = document.getElementById('skip-btn');
+    const glow = document.getElementById('glow');
+
+    const trainingActions = ['punch', 'kick', 'flip', 'punch', 'kick', 'flip'];
+    let trainingActionIndex = 0;
+    let trainingActionTimer = 0;
+
+    function updateAnimation(timestamp) {
+      if (isComplete) return;
+
+      if (phaseStartTime === 0) phaseStartTime = timestamp;
+
+      const elapsed = timestamp - phaseStartTime;
+      const phase = phases[currentPhaseIndex];
+
+      // 更新阶段进度
+      const phaseProgress = Math.min(elapsed / phase.duration, 1);
+      const prevPhasesDuration = phases.slice(0, currentPhaseIndex).reduce((sum, p) => sum + p.duration, 0);
+      const totalDuration = phases.reduce((sum, p) => sum + p.duration, 0);
+      totalProgress = Math.min((prevPhasesDuration + elapsed) / totalDuration * 100, 100);
+
+      // 更新 UI
+      phaseLabel.textContent = phase.label;
+      progressFill.style.width = totalProgress + '%';
+      progressText.textContent = Math.round(totalProgress) + '%';
+
+      // 更新小人动作
+      if (phase.action === 'invisible') {
+        currentAction = 'invisible';
+      } else if (phase.action === 'cycle') {
+        // 训练阶段循环切换动作
+        trainingActionTimer++;
+        if (trainingActionTimer > 40) {
+          trainingActionIndex = (trainingActionIndex + 1) % trainingActions.length;
+          currentAction = trainingActions[trainingActionIndex];
+          trainingActionTimer = 0;
+        }
+      } else {
+        currentAction = phase.action;
+      }
+
+      // 觉醒阶段显示光效
+      if (phase.name === 'awakening') {
+        glow.style.borderColor = `rgba(0, 255, 65, ${0.3 + phaseProgress * 0.7})`;
+      }
+
+      // 检查是否进入下一阶段
+      if (elapsed >= phase.duration) {
+        currentPhaseIndex++;
+        phaseStartTime = timestamp;
+
+        // 完成阶段
+        if (currentPhaseIndex >= phases.length) {
+          showComplete();
+          return;
+        }
+      }
+
+      requestAnimationFrame(updateAnimation);
+    }
+
+    function showComplete() {
+      isComplete = true;
+
+      // 显示技能文本
+      skillText.classList.add('show');
+
+      // 2秒后显示对比
+      setTimeout(() => {
+        mainContent.classList.add('hidden');
+        skipBtn.classList.add('hidden');
+        comparison.classList.add('show');
+      }, 2000);
+    }
+
+    function handleSkip() {
+      if (isComplete) return;
+
+      isSkipped = true;
+      isComplete = true;
+
+      // 快进到完成状态
+      currentAction = 'idle';
+      totalProgress = 100;
+      progressFill.style.width = '100%';
+      progressText.textContent = '100%';
+      phaseLabel.textContent = 'Complete';
+      skillText.classList.add('show');
+
+      setTimeout(() => {
+        mainContent.classList.add('hidden');
+        skipBtn.classList.add('hidden');
+        comparison.classList.add('show');
+      }, 500);
+    }
+
+    function handleShowMe() {
+      alert('🎉 恭喜！你的 Agent 已完成训练！\n\n接下来可以：\n1. 查看训练结果详情\n2. 开始使用增强后的 Agent\n3. 继续训练其他技能');
+
+      // 这里可以触发 onComplete 回调
+      console.log('Training completed! Triggering onComplete callback...');
+    }
+
+    // 启动动画
+    requestAnimationFrame(updateAnimation);
+  </script>
+</body>
+</html>

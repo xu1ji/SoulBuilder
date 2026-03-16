@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>素材风格 B - Martial Arts Guy (CSS Sprite)</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #0D0208;
+      color: #00FF41;
+      font-family: 'Courier New', monospace;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+
+    h1 {
+      font-size: 1.2rem;
+      margin-bottom: 10px;
+      text-shadow: 0 0 10px #00FF41;
+    }
+
+    .source-info {
+      font-size: 0.75rem;
+      color: #008F11;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .source-info a { color: #00FF41; }
+
+    .demo-container {
+      background: #000;
+      border: 2px solid #00FF41;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 0 20px rgba(0, 255, 65, 0.3);
+      width: 200px;
+      height: 200px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* CSS Sprite 实现 - 使用CSS变量和动画 */
+    .sprite-fighter {
+      width: 48px;
+      height: 64px;
+      position: relative;
+    }
+
+    .sprite-fighter .head {
+      width: 16px;
+      height: 14px;
+      background: #00FF41;
+      border-radius: 4px;
+      position: absolute;
+      top: 0;
+      left: 16px;
+      box-shadow: 0 0 10px #00FF41;
+    }
+
+    .sprite-fighter .body {
+      width: 24px;
+      height: 20px;
+      background: #00FF41;
+      position: absolute;
+      top: 14px;
+      left: 12px;
+      box-shadow: 0 0 10px #00FF41;
+    }
+
+    .sprite-fighter .arm {
+      width: 8px;
+      height: 18px;
+      background: #00FF41;
+      position: absolute;
+      top: 14px;
+      box-shadow: 0 0 8px #00FF41;
+      transform-origin: top center;
+    }
+
+    .sprite-fighter .arm.left { left: 4px; }
+    .sprite-fighter .arm.right { right: 4px; }
+
+    .sprite-fighter .leg {
+      width: 10px;
+      height: 24px;
+      background: #00FF41;
+      position: absolute;
+      top: 34px;
+      box-shadow: 0 0 8px #00FF41;
+      transform-origin: top center;
+    }
+
+    .sprite-fighter .leg.left { left: 12px; }
+    .sprite-fighter .leg.right { right: 12px; }
+
+    /* === 动画状态 === */
+
+    /* Idle 待机 - 呼吸起伏 */
+    .sprite-fighter.idle .body {
+      animation: breathe 1s ease-in-out infinite;
+    }
+    .sprite-fighter.idle .head {
+      animation: breathe-head 1s ease-in-out infinite;
+    }
+
+    @keyframes breathe {
+      0%, 100% { transform: scaleY(1); }
+      50% { transform: scaleY(1.05); }
+    }
+
+    @keyframes breathe-head {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-2px); }
+    }
+
+    /* Punch 出拳 */
+    .sprite-fighter.punch .arm.right {
+      animation: punch-arm 0.4s ease-out infinite;
+    }
+    .sprite-fighter.punch .body {
+      animation: punch-body 0.4s ease-out infinite;
+    }
+
+    @keyframes punch-arm {
+      0%, 100% { transform: rotate(0deg) translateX(0); width: 8px; }
+      40% { transform: rotate(-10deg) translateX(30px); width: 32px; }
+    }
+
+    @keyframes punch-body {
+      0%, 100% { transform: translateX(0); }
+      40% { transform: translateX(5px); }
+    }
+
+    /* Kick 踢腿 */
+    .sprite-fighter.kick .leg.right {
+      animation: kick-leg 0.5s ease-out infinite;
+    }
+    .sprite-fighter.kick .body {
+      animation: kick-body 0.5s ease-out infinite;
+    }
+
+    @keyframes kick-leg {
+      0%, 100% { transform: rotate(0deg); height: 24px; }
+      40% { transform: rotate(60deg); height: 36px; }
+    }
+
+    @keyframes kick-body {
+      0%, 100% { transform: translateX(0) rotate(0deg); }
+      40% { transform: translateX(-5px) rotate(-5deg); }
+    }
+
+    /* Jump 跳跃 */
+    .sprite-fighter.jump {
+      animation: jump 0.8s ease-in-out infinite;
+    }
+    .sprite-fighter.jump .leg.left {
+      animation: jump-legs-l 0.8s ease-in-out infinite;
+    }
+    .sprite-fighter.jump .leg.right {
+      animation: jump-legs-r 0.8s ease-in-out infinite;
+    }
+
+    @keyframes jump {
+      0%, 100% { transform: translateY(0); }
+      30%, 70% { transform: translateY(-40px); }
+    }
+
+    @keyframes jump-legs-l {
+      0%, 100% { transform: rotate(0deg); }
+      50% { transform: rotate(-20deg); }
+    }
+
+    @keyframes jump-legs-r {
+      0%, 100% { transform: rotate(0deg); }
+      50% { transform: rotate(20deg); }
+    }
+
+    /* Block 防守 */
+    .sprite-fighter.block .arm.left,
+    .sprite-fighter.block .arm.right {
+      animation: block-arms 0.6s ease-in-out infinite;
+    }
+
+    @keyframes block-arms {
+      0%, 100% { transform: rotate(0deg); height: 18px; }
+      50% { transform: rotate(-60deg); height: 14px; top: 8px; }
+    }
+
+    /* Special 必杀技 */
+    .sprite-fighter.special .body {
+      animation: special-body 0.3s ease-in-out infinite;
+    }
+    .sprite-fighter.special .head {
+      animation: special-head 0.3s ease-in-out infinite;
+    }
+    .sprite-fighter.special .arm.left {
+      animation: special-arm-l 0.3s ease-in-out infinite;
+    }
+    .sprite-fighter.special .arm.right {
+      animation: special-arm-r 0.3s ease-in-out infinite;
+    }
+    .sprite-fighter.special .leg.left {
+      animation: special-leg-l 0.3s ease-in-out infinite;
+    }
+    .sprite-fighter.special .leg.right {
+      animation: special-leg-r 0.3s ease-in-out infinite;
+    }
+
+    @keyframes special-body {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); background: #FBBF24; box-shadow: 0 0 20px #FBBF24; }
+    }
+
+    @keyframes special-head {
+      0%, 100% { transform: scale(1); }
+      50% { background: #FBBF24; box-shadow: 0 0 20px #FBBF24; }
+    }
+
+    @keyframes special-arm-l {
+      0%, 100% { transform: rotate(0deg); }
+      25% { transform: rotate(-90deg); }
+      50% { transform: rotate(-45deg); }
+      75% { transform: rotate(-135deg); }
+    }
+
+    @keyframes special-arm-r {
+      0%, 100% { transform: rotate(0deg); }
+      25% { transform: rotate(90deg); }
+      50% { transform: rotate(45deg); }
+      75% { transform: rotate(135deg); }
+    }
+
+    @keyframes special-leg-l {
+      0%, 100% { transform: rotate(0deg); }
+      50% { transform: rotate(-30deg); }
+    }
+
+    @keyframes special-leg-r {
+      0%, 100% { transform: rotate(0deg); }
+      50% { transform: rotate(30deg); }
+    }
+
+    /* Controls */
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+      margin-bottom: 15px;
+    }
+
+    .btn {
+      padding: 8px 16px;
+      background: transparent;
+      border: 1px solid #00FF41;
+      color: #00FF41;
+      cursor: pointer;
+      font-family: 'Courier New', monospace;
+      font-size: 0.8rem;
+      transition: all 0.2s;
+    }
+
+    .btn:hover { background: rgba(0, 255, 65, 0.2); }
+    .btn.active {
+      background: #00FF41;
+      color: #000;
+    }
+
+    .features {
+      max-width: 400px;
+      font-size: 0.7rem;
+      color: #888;
+      line-height: 1.6;
+    }
+
+    .features h3 {
+      color: #00FF41;
+      margin: 15px 0 8px;
+      font-size: 0.8rem;
+    }
+
+    .features ul { padding-left: 20px; }
+    .features li { margin: 3px 0; }
+    .features .pro { color: #4ADE80; }
+    .features .con { color: #F87171; }
+  </style>
+</head>
+<body>
+  <h1>素材风格 B: Martial Arts Guy</h1>
+  <div class="source-info">
+    原始素材: <a href="https://opengameart.org/content/martial-arts-guy-sprite-animations" target="_blank">OpenGameArt Martial Arts Guy</a><br>
+    授权: CC-BY 3.0 | 实现方式: CSS DOM 动画
+  </div>
+
+  <div class="demo-container">
+    <div id="fighter" class="sprite-fighter idle">
+      <div class="head"></div>
+      <div class="body"></div>
+      <div class="arm left"></div>
+      <div class="arm right"></div>
+      <div class="leg left"></div>
+      <div class="leg right"></div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <button class="btn active" data-action="idle">Idle 待机</button>
+    <button class="btn" data-action="punch">Punch 出拳</button>
+    <button class="btn" data-action="kick">Kick 踢腿</button>
+    <button class="btn" data-action="jump">Jump 跳跃</button>
+    <button class="btn" data-action="block">Block 防守</button>
+    <button class="btn" data-action="special">Special 必杀</button>
+  </div>
+
+  <div class="features">
+    <h3>技术特点</h3>
+    <ul>
+      <li class="pro">✓ 设计师友好，可用CSS调整</li>
+      <li class="pro">✓ DOM结构清晰，易于维护</li>
+      <li class="pro">✓ GPU加速动画性能好</li>
+      <li class="pro">✓ 支持CSS变量动态改色</li>
+      <li class="pro">✓ 响应式适配简单</li>
+      <li class="con">✗ 复杂姿势需要多帧切换</li>
+      <li class="con">✗ 像素精度不如Canvas</li>
+    </ul>
+
+    <h3>适用场景</h3>
+    <ul>
+      <li>需要快速原型开发</li>
+      <li>设计师参与度高的项目</li>
+      <li>需要响应式和可访问性</li>
+    </ul>
+  </div>
+
+  <script>
+    const fighter = document.getElementById('fighter');
+
+    document.querySelectorAll('.btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        fighter.className = 'sprite-fighter ' + btn.dataset.action;
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Matrix Kung Fu - SoulBuilder</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #000;
+      min-height: 100vh;
+      overflow: hidden;
+      font-family: 'Courier New', monospace;
+    }
+
+    #matrix-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 1;
+    }
+
+    .foreground {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .center-box {
+      background: rgba(0, 0, 0, 0.9);
+      border: 3px solid #00FF41;
+      padding: 32px 80px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 40px rgba(0, 255, 65, 0.5);
+    }
+
+    .title {
+      color: #00FF41;
+      font-size: 2.5rem;
+      text-shadow: 0 0 20px #00FF41, 0 0 40px #00FF41;
+      margin-bottom: 0;
+      letter-spacing: 8px;
+      animation: title-glow 2s ease-in-out infinite;
+    }
+
+    @keyframes title-glow {
+      0%, 100% { text-shadow: 0 0 20px #00FF41, 0 0 40px #00FF41; }
+      50% { text-shadow: 0 0 30px #00FF41, 0 0 60px #00FF41, 0 0 80px #00FF41; }
+    }
+
+    .subtitle {
+      display: none;
+    }
+
+    .countdown {
+      color: #00FF41;
+      font-size: 1.35rem;
+      margin-top: 10px;
+      margin-bottom: 20px;
+      text-shadow: 0 0 10px #00FF41;
+      letter-spacing: 2px;
+      text-align: center;
+    }
+
+    .countdown span {
+      color: #FFF;
+      font-weight: bold;
+      font-size: 1.65rem;
+    }
+
+    .fighter-stage {
+      position: relative;
+      width: 300px;
+      height: 220px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transform: translateY(-50px);
+    }
+
+    .ground-reflection {
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 250px;
+      height: 60px;
+      background: radial-gradient(ellipse at center, rgba(0, 255, 65, 0.4) 0%, transparent 70%);
+      filter: blur(15px);
+    }
+
+    .pixel-fighter {
+      width: 20px;
+      height: 20px;
+      background: #00FF41;
+      position: relative;
+      filter: drop-shadow(0 0 25px #00FF41);
+      transform-origin: center center;
+      transform: scale(0.5);
+      margin-left: -100px;
+    }
+
+    /* 隐藏控制按钮 */
+    .controls { display: none !important; }
+    .status { display: none !important; }
+
+    /* Idle */
+    .pixel-fighter.idle {
+      animation: fighter-idle 0.6s steps(1) infinite;
+    }
+
+    @keyframes fighter-idle {
+      0%, 100% {
+        box-shadow:
+          40px 0 0 #00FF41, 60px 0 0 #00FF41,
+          20px 20px 0 #00FF41, 40px 20px 0 #00FF41, 60px 20px 0 #00FF41, 80px 20px 0 #00FF41,
+          20px 40px 0 #00FF41, 40px 40px 0 #00FF41, 60px 40px 0 #00FF41, 80px 40px 0 #00FF41,
+          40px 60px 0 #00FF41, 60px 60px 0 #00FF41,
+          0px 80px 0 #00FF41, 20px 80px 0 #00FF41, 40px 80px 0 #00FF41, 60px 80px 0 #00FF41, 80px 80px 0 #00FF41, 100px 80px 0 #00FF41,
+          0px 100px 0 #00FF41, 20px 100px 0 #00FF41, 40px 100px 0 #00FF41, 60px 100px 0 #00FF41, 80px 100px 0 #00FF41, 100px 100px 0 #00FF41,
+          20px 120px 0 #00FF41, 40px 120px 0 #00FF41, 60px 120px 0 #00FF41, 80px 120px 0 #00FF41,
+          -40px 100px 0 #00FF41, -20px 100px 0 #00FF41,
+          120px 100px 0 #00FF41, 140px 100px 0 #00FF41,
+          20px 140px 0 #00FF41, 40px 140px 0 #00FF41, 80px 140px 0 #00FF41, 100px 140px 0 #00FF41,
+          20px 160px 0 #00FF41, 40px 160px 0 #00FF41, 80px 160px 0 #00FF41, 100px 160px 0 #00FF41,
+          20px 180px 0 #00FF41, 100px 180px 0 #00FF41;
+      }
+      50% {
+        box-shadow:
+          40px -10px 0 #00FF41, 60px -10px 0 #00FF41,
+          20px 10px 0 #00FF41, 40px 10px 0 #00FF41, 60px 10px 0 #00FF41, 80px 10px 0 #00FF41,
+          20px 30px 0 #00FF41, 40px 30px 0 #00FF41, 60px 30px 0 #00FF41, 80px 30px 0 #00FF41,
+          40px 50px 0 #00FF41, 60px 50px 0 #00FF41,
+          0px 70px 0 #00FF41, 20px 70px 0 #00FF41, 40px 70px 0 #00FF41, 60px 70px 0 #00FF41, 80px 70px 0 #00FF41, 100px 70px 0 #00FF41,
+          0px 90px 0 #00FF41, 20px 90px 0 #00FF41, 40px 90px 0 #00FF41, 60px 90px 0 #00FF41, 80px 90px 0 #00FF41, 100px 90px 0 #00FF41,
+          20px 110px 0 #00FF41, 40px 110px 0 #00FF41, 60px 110px 0 #00FF41, 80px 110px 0 #00FF41,
+          -40px 90px 0 #00FF41, -20px 90px 0 #00FF41,
+          120px 90px 0 #00FF41, 140px 90px 0 #00FF41,
+          20px 130px 0 #00FF41, 40px 130px 0 #00FF41, 80px 130px 0 #00FF41, 100px 130px 0 #00FF41,
+          20px 150px 0 #00FF41, 40px 150px 0 #00FF41, 80px 150px 0 #00FF41, 100px 150px 0 #00FF41,
+          20px 170px 0 #00FF41, 100px 170px 0 #00FF41;
+      }
+    }
+
+    /* Punch */
+    .pixel-fighter.punch {
+      animation: fighter-punch 0.3s steps(1) infinite;
+    }
+
+    @keyframes fighter-punch {
+      0%, 100% {
+        box-shadow:
+          40px 0 0 #00FF41, 60px 0 0 #00FF41,
+          20px 20px 0 #00FF41, 40px 20px 0 #00FF41, 60px 20px 0 #00FF41, 80px 20px 0 #00FF41,
+          20px 40px 0 #00FF41, 40px 40px 0 #00FF41, 60px 40px 0 #00FF41, 80px 40px 0 #00FF41,
+          40px 60px 0 #00FF41, 60px 60px 0 #00FF41,
+          0px 80px 0 #00FF41, 20px 80px 0 #00FF41, 40px 80px 0 #00FF41, 60px 80px 0 #00FF41, 80px 80px 0 #00FF41, 100px 80px 0 #00FF41,
+          0px 100px 0 #00FF41, 20px 100px 0 #00FF41, 40px 100px 0 #00FF41, 60px 100px 0 #00FF41, 80px 100px 0 #00FF41, 100px 100px 0 #00FF41,
+          20px 120px 0 #00FF41, 40px 120px 0 #00FF41, 60px 120px 0 #00FF41, 80px 120px 0 #00FF41,
+          -40px 100px 0 #00FF41, -20px 100px 0 #00FF41,
+          120px 100px 0 #00FF41, 140px 100px 0 #00FF41, 160px 100px 0 #00FF41, 180px 100px 0 #00FF41, 200px 100px 0 #00FF41,
+          20px 140px 0 #00FF41, 40px 140px 0 #00FF41, 80px 140px 0 #00FF41, 100px 140px 0 #00FF41,
+          20px 160px 0 #00FF41, 40px 160px 0 #00FF41, 80px 160px 0 #00FF41, 100px 160px 0 #00FF41,
+          20px 180px 0 #00FF41, 100px 180px 0 #00FF41;
+      }
+      50% {
+        filter: drop-shadow(0 0 40px #00FF41);
+        box-shadow:
+          40px 0 0 #00FF41, 60px 0 0 #00FF41,
+          20px 20px 0 #00FF41, 40px 20px 0 #00FF41, 60px 20px 0 #00FF41, 80px 20px 0 #00FF41,
+          20px 40px 0 #00FF41, 40px 40px 0 #00FF41, 60px 40px 0 #00FF41, 80px 40px 0 #00FF41,
+          40px 60px 0 #00FF41, 60px 60px 0 #00FF41,
+          -20px 80px 0 #00FF41, 0px 80px 0 #00FF41, 20px 80px 0 #00FF41, 40px 80px 0 #00FF41, 60px 80px 0 #00FF41, 80px 80px 0 #00FF41,
+          -20px 100px 0 #00FF41, 0px 100px 0 #00FF41, 20px 100px 0 #00FF41, 40px 100px 0 #00FF41, 60px 100px 0 #00FF41, 80px 100px 0 #00FF41,
+          0px 120px 0 #00FF41, 20px 120px 0 #00FF41, 40px 120px 0 #00FF41, 60px 120px 0 #00FF41, 80px 120px 0 #00FF41,
+          100px 40px 0 #00FF41, 120px 40px 0 #00FF41, 140px 40px 0 #00FF41, 160px 40px 0 #00FF41, 180px 40px 0 #00FF41, 200px 40px 0 #00FF41, 220px 40px 0 #00FF41,
+          20px 140px 0 #00FF41, 40px 140px 0 #00FF41, 80px 140px 0 #00FF41, 100px 140px 0 #00FF41,
+          20px 160px 0 #00FF41, 40px 160px 0 #00FF41, 80px 160px 0 #00FF41, 100px 160px 0 #00FF41,
+          20px 180px 0 #00FF41, 100px 180px 0 #00FF41;
+      }
+    }
+
+    /* Kick */
+    .pixel-fighter.kick {
+      animation: fighter-kick 0.4s steps(1) infinite;
+    }
+
+    @keyframes fighter-kick {
+      0%, 100% {
+        box-shadow:
+          40px 0 0 #00FF41, 60px 0 0 #00FF41,
+          20px 20px 0 #00FF41, 40px 20px 0 #00FF41, 60px 20px 0 #00FF41, 80px 20px 0 #00FF41,
+          20px 40px 0 #00FF41, 40px 40px 0 #00FF41, 60px 40px 0 #00FF41, 80px 40px 0 #00FF41,
+          40px 60px 0 #00FF41, 60px 60px 0 #00FF41,
+          0px 80px 0 #00FF41, 20px 80px 0 #00FF41, 40px 80px 0 #00FF41, 60px 80px 0 #00FF41, 80px 80px 0 #00FF41, 100px 80px 0 #00FF41,
+          0px 100px 0 #00FF41, 20px 100px 0 #00FF41, 40px 100px 0 #00FF41, 60px 100px 0 #00FF41, 80px 100px 0 #00FF41, 100px 100px 0 #00FF41,
+          20px 120px 0 #00FF41, 40px 120px 0 #00FF41, 60px 120px 0 #00FF41, 80px 120px 0 #00FF41,
+          -40px 100px 0 #00FF41, -20px 100px 0 #00FF41,
+          120px 100px 0 #00FF41, 140px 100px 0 #00FF41,
+          20px 140px 0 #00FF41, 40px 140px 0 #00FF41, 80px 140px 0 #00FF41, 100px 140px 0 #00FF41,
+          20px 160px 0 #00FF41, 40px 160px 0 #00FF41, 80px 160px 0 #00FF41, 100px 160px 0 #00FF41,
+          20px 180px 0 #00FF41, 100px 180px 0 #00FF41;
+      }
+      50% {
+        filter: drop-shadow(0 0 40px #00FF41);
+        box-shadow:
+          40px 0 0 #00FF41, 60px 0 0 #00FF41,
+          20px 20px 0 #00FF41, 40px 20px 0 #00FF41, 60px 20px 0 #00FF41, 80px 20px 0 #00FF41,
+          20px 40px 0 #00FF41, 40px 40px 0 #00FF41, 60px 40px 0 #00FF41, 80px 40px 0 #00FF41,
+          40px 60px 0 #00FF41, 60px 60px 0 #00FF41,
+          0px 80px 0 #00FF41, 20px 80px 0 #00FF41, 40px 80px 0 #00FF41, 60px 80px 0 #00FF41, 80px 80px 0 #00FF41, 100px 80px 0 #00FF41,
+          0px 100px 0 #00FF41, 20px 100px 0 #00FF41, 40px 100px 0 #00FF41, 60px 100px 0 #00FF41, 80px 100px 0 #00FF41, 100px 100px 0 #00FF41,
+          20px 120px 0 #00FF41, 40px 120px 0 #00FF41, 60px 120px 0 #00FF41, 80px 120px 0 #00FF41,
+          -20px 80px 0 #00FF41, 0px 80px 0 #00FF41,
+          120px 80px 0 #00FF41, 140px 80px 0 #00FF41,
+          20px 140px 0 #00FF41, 40px 140px 0 #00FF41,
+          120px 140px 0 #00FF41, 140px 140px 0 #00FF41, 160px 140px 0 #00FF41, 180px 140px 0 #00FF41, 200px 140px 0 #00FF41,
+          20px 160px 0 #00FF41,
+          180px 160px 0 #00FF41, 200px 160px 0 #00FF41,
+          20px 180px 0 #00FF41,
+          200px 180px 0 #00FF41;
+      }
+    }
+
+    /* Training */
+    .pixel-fighter.training {
+      animation: fighter-training 1s steps(1) infinite;
+    }
+
+    @keyframes fighter-training {
+      0%, 100% {
+        filter: drop-shadow(0 0 25px #00FF41);
+        box-shadow:
+          40px 0 0 #00FF41, 60px 0 0 #00FF41,
+          20px 20px 0 #00FF41, 40px 20px 0 #00FF41, 60px 20px 0 #00FF41, 80px 20px 0 #00FF41,
+          20px 40px 0 #00FF41, 40px 40px 0 #00FF41, 60px 40px 0 #00FF41, 80px 40px 0 #00FF41,
+          40px 60px 0 #00FF41, 60px 60px 0 #00FF41,
+          0px 80px 0 #00FF41, 20px 80px 0 #00FF41, 40px 80px 0 #00FF41, 60px 80px 0 #00FF41, 80px 80px 0 #00FF41, 100px 80px 0 #00FF41,
+          0px 100px 0 #00FF41, 20px 100px 0 #00FF41, 40px 100px 0 #00FF41, 60px 100px 0 #00FF41, 80px 100px 0 #00FF41, 100px 100px 0 #00FF41,
+          20px 120px 0 #00FF41, 40px 120px 0 #00FF41, 60px 120px 0 #00FF41, 80px 120px 0 #00FF41,
+          -40px 100px 0 #00FF41, -20px 100px 0 #00FF41,
+          120px 100px 0 #00FF41, 140px 100px 0 #00FF41,
+          20px 140px 0 #00FF41, 40px 140px 0 #00FF41, 80px 140px 0 #00FF41, 100px 140px 0 #00FF41,
+          20px 160px 0 #00FF41, 40px 160px 0 #00FF41, 80px 160px 0 #00FF41, 100px 160px 0 #00FF41,
+          20px 180px 0 #00FF41, 100px 180px 0 #00FF41;
+      }
+      50% {
+        filter: drop-shadow(0 0 60px #FBBF24) drop-shadow(0 0 100px #FBBF24);
+        box-shadow:
+          40px -10px 0 #FBBF24, 60px -10px 0 #FBBF24,
+          20px 10px 0 #FBBF24, 40px 10px 0 #FBBF24, 60px 10px 0 #FBBF24, 80px 10px 0 #FBBF24,
+          20px 30px 0 #FBBF24, 40px 30px 0 #FBBF24, 60px 30px 0 #FBBF24, 80px 30px 0 #FBBF24,
+          40px 50px 0 #FBBF24, 60px 50px 0 #FBBF24,
+          0px 70px 0 #FBBF24, 20px 70px 0 #FBBF24, 40px 70px 0 #FBBF24, 60px 70px 0 #FBBF24, 80px 70px 0 #FBBF24, 100px 70px 0 #FBBF24,
+          0px 90px 0 #FBBF24, 20px 90px 0 #FBBF24, 40px 90px 0 #FBBF24, 60px 90px 0 #FBBF24, 80px 90px 0 #FBBF24, 100px 90px 0 #FBBF24,
+          20px 110px 0 #FBBF24, 40px 110px 0 #FBBF24, 60px 110px 0 #FBBF24, 80px 110px 0 #FBBF24,
+          -40px 90px 0 #FBBF24, -20px 90px 0 #FBBF24,
+          120px 90px 0 #FBBF24, 140px 90px 0 #FBBF24,
+          20px 130px 0 #FBBF24, 40px 130px 0 #FBBF24, 80px 130px 0 #FBBF24, 100px 130px 0 #FBBF24,
+          20px 150px 0 #FBBF24, 40px 150px 0 #FBBF24, 80px 150px 0 #FBBF24, 100px 150px 0 #FBBF24,
+          20px 170px 0 #FBBF24, 100px 170px 0 #FBBF24;
+      }
+    }
+
+    /* Awakening */
+    .pixel-fighter.awakening {
+      animation: fighter-awakening 1.5s steps(1) infinite;
+      transform-origin: bottom center;
+    }
+
+    @keyframes fighter-awakening {
+      0%, 100% {
+        filter: drop-shadow(0 0 100px #FBBF24) drop-shadow(0 0 180px #FBBF24);
+        transform: scale(0.75);
+        box-shadow:
+          40px -20px 0 #FBBF24, 60px -20px 0 #FBBF24,
+          20px 0 0 #FBBF24, 40px 0 0 #FBBF24, 60px 0 0 #FBBF24, 80px 0 0 #FBBF24,
+          20px 20px 0 #FBBF24, 40px 20px 0 #FBBF24, 60px 20px 0 #FBBF24, 80px 20px 0 #FBBF24,
+          40px 40px 0 #FBBF24, 60px 40px 0 #FBBF24,
+          0px 60px 0 #FBBF24, 20px 60px 0 #FBBF24, 40px 60px 0 #FBBF24, 60px 60px 0 #FBBF24, 80px 60px 0 #FBBF24, 100px 60px 0 #FBBF24,
+          0px 80px 0 #FBBF24, 20px 80px 0 #FBBF24, 40px 80px 0 #FBBF24, 60px 80px 0 #FBBF24, 80px 80px 0 #FBBF24, 100px 80px 0 #FBBF24,
+          20px 100px 0 #FBBF24, 40px 100px 0 #FBBF24, 60px 100px 0 #FBBF24, 80px 100px 0 #FBBF24,
+          -60px 80px 0 #FBBF24, -40px 80px 0 #FBBF24, -40px 60px 0 #FBBF24, -20px 40px 0 #FBBF24,
+          140px 80px 0 #FBBF24, 160px 80px 0 #FBBF24, 140px 60px 0 #FBBF24, 160px 40px 0 #FBBF24,
+          20px 120px 0 #FBBF24, 40px 120px 0 #FBBF24, 80px 120px 0 #FBBF24, 100px 120px 0 #FBBF24,
+          20px 140px 0 #FBBF24, 40px 140px 0 #FBBF24, 80px 140px 0 #FBBF24, 100px 140px 0 #FBBF24,
+          20px 160px 0 #FBBF24, 100px 160px 0 #FBBF24;
+      }
+      50% {
+        filter: drop-shadow(0 0 120px #FFF) drop-shadow(0 0 250px #FBBF24);
+        transform: scale(0.85);
+        box-shadow:
+          40px -30px 0 #FFF, 60px -30px 0 #FFF,
+          20px -10px 0 #FFF, 40px -10px 0 #FFF, 60px -10px 0 #FFF, 80px -10px 0 #FFF,
+          20px 10px 0 #FFF, 40px 10px 0 #FFF, 60px 10px 0 #FFF, 80px 10px 0 #FFF,
+          40px 30px 0 #FFF, 60px 30px 0 #FFF,
+          0px 50px 0 #FFF, 20px 50px 0 #FFF, 40px 50px 0 #FFF, 60px 50px 0 #FFF, 80px 50px 0 #FFF, 100px 50px 0 #FFF,
+          0px 70px 0 #FFF, 20px 70px 0 #FFF, 40px 70px 0 #FFF, 60px 70px 0 #FFF, 80px 70px 0 #FFF, 100px 70px 0 #FFF,
+          20px 90px 0 #FFF, 40px 90px 0 #FFF, 60px 90px 0 #FFF, 80px 90px 0 #FFF,
+          -80px 70px 0 #FFF, -60px 70px 0 #FFF, -60px 50px 0 #FFF, -40px 30px 0 #FFF,
+          160px 70px 0 #FFF, 180px 70px 0 #FFF, 160px 50px 0 #FFF, 180px 30px 0 #FFF,
+          20px 110px 0 #FFF, 40px 110px 0 #FFF, 80px 110px 0 #FFF, 100px 110px 0 #FFF,
+          20px 130px 0 #FFF, 40px 130px 0 #FFF, 80px 130px 0 #FFF, 100px 130px 0 #FFF,
+          20px 150px 0 #FFF, 100px 150px 0 #FFF;
+      }
+    }
+
+    .credits {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: #003d00;
+      font-size: 0.8rem;
+      text-align: center;
+      z-index: 100;
+    }
+
+    .credits a { color: #008F11; }
+
+    /* 开始确认弹窗 */
+    .start-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: #000;
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .start-dialog {
+      text-align: center;
+      padding: 40px 60px;
+      border: 2px solid #00FF41;
+      background: rgba(0, 20, 0, 0.95);
+      box-shadow: 0 0 60px rgba(0, 255, 65, 0.3);
+    }
+
+    .start-dialog h2 {
+      color: #00FF41;
+      font-size: 1.8rem;
+      margin-bottom: 15px;
+      text-shadow: 0 0 20px #00FF41;
+      letter-spacing: 4px;
+    }
+
+    .start-dialog p {
+      color: #008F11;
+      font-size: 1rem;
+      margin-bottom: 30px;
+    }
+
+    .start-btn {
+      background: transparent;
+      border: 2px solid #00FF41;
+      color: #00FF41;
+      padding: 15px 50px;
+      font-size: 1.2rem;
+      font-family: 'Courier New', monospace;
+      cursor: pointer;
+      transition: all 0.3s;
+      letter-spacing: 3px;
+    }
+
+    .start-btn:hover {
+      background: #00FF41;
+      color: #000;
+      box-shadow: 0 0 30px rgba(0, 255, 65, 0.5);
+    }
+
+    .hidden {
+      display: none !important;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="matrix-canvas"></canvas>
+
+  <!-- 开始确认弹窗 -->
+  <div class="start-overlay" id="startOverlay">
+    <div class="start-dialog">
+      <h2>🥋 准备开始训练</h2>
+      <p>用30秒走完人类3-10年的成长之路</p>
+      <button class="start-btn" id="startBtn">开始修炼</button>
+    </div>
+  </div>
+
+  <div class="foreground">
+    <div class="center-box">
+      <h1 class="title">员工段位快速升级中</h1>
+      <div class="countdown" id="countdown">SoloBrave，最勇敢的人就是一支完整队伍<br>本次训练还需要 <span id="timer">30</span> 秒</div>
+
+      <div class="fighter-stage">
+        <div class="ground-reflection"></div>
+        <div id="fighter" class="pixel-fighter idle"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="credits">
+    Pixel Art: <a href="https://opengameart.org/content/rpg-asset-character-kung-fu-man-gameboy" target="_blank">Kung Fu Man NES</a> (CC0)
+  </div>
+
+  <script>
+    // ========== 音效系统 (Web Audio API) ==========
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    let audioCtx = null;
+    let audioInitialized = false;
+
+    function getAudioContext() {
+      if (!audioCtx) {
+        audioCtx = new AudioContext();
+      }
+      // 确保 AudioContext 处于运行状态
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      return audioCtx;
+    }
+
+    // 初始化音频（需要用户交互）
+    function initAudio() {
+      if (audioInitialized) return;
+      getAudioContext();
+      audioInitialized = true;
+      // 隐藏提示
+      const hint = document.getElementById('audioHint');
+      if (hint) hint.classList.add('active');
+      console.log('Audio initialized');
+    }
+
+    // 小招音效 - 挥拳风声
+    function playSmallSound() {
+      const ctx = getAudioContext();
+      const bufferSize = ctx.sampleRate * 0.15;
+      const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) {
+        data[i] = Math.random() * 2 - 1;
+      }
+      const noise = ctx.createBufferSource();
+      noise.buffer = buffer;
+      const filter = ctx.createBiquadFilter();
+      filter.type = 'bandpass';
+      filter.frequency.setValueAtTime(3000, ctx.currentTime);
+      filter.frequency.exponentialRampToValueAtTime(500, ctx.currentTime + 0.15);
+      filter.Q.value = 2;
+      const gain = ctx.createGain();
+      noise.connect(filter);
+      filter.connect(gain);
+      gain.connect(ctx.destination);
+      gain.gain.setValueAtTime(0.12, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.15);
+      noise.start();
+      noise.stop(ctx.currentTime + 0.15);
+    }
+
+    // 中招音效 - 踢腿
+    function playMediumSound() {
+      const ctx = getAudioContext();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.frequency.setValueAtTime(200, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(50, ctx.currentTime + 0.15);
+      gain.gain.setValueAtTime(0.35, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.15);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.15);
+
+      // 高频点击
+      const click = ctx.createOscillator();
+      const clickGain = ctx.createGain();
+      click.type = 'square';
+      click.connect(clickGain);
+      clickGain.connect(ctx.destination);
+      click.frequency.setValueAtTime(1000, ctx.currentTime);
+      click.frequency.exponentialRampToValueAtTime(200, ctx.currentTime + 0.05);
+      clickGain.gain.setValueAtTime(0.12, ctx.currentTime);
+      clickGain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.05);
+      click.start();
+      click.stop(ctx.currentTime + 0.05);
+    }
+
+    // 大招音效 - 觉醒
+    function playBigSound() {
+      const ctx = getAudioContext();
+      // 能量汇聚
+      const osc1 = ctx.createOscillator();
+      const gain1 = ctx.createGain();
+      osc1.type = 'sine';
+      osc1.connect(gain1);
+      gain1.connect(ctx.destination);
+      osc1.frequency.setValueAtTime(100, ctx.currentTime);
+      osc1.frequency.exponentialRampToValueAtTime(500, ctx.currentTime + 0.8);
+      gain1.gain.setValueAtTime(0.08, ctx.currentTime);
+      gain1.gain.linearRampToValueAtTime(0.25, ctx.currentTime + 0.6);
+      gain1.gain.linearRampToValueAtTime(0.01, ctx.currentTime + 0.9);
+      osc1.start();
+      osc1.stop(ctx.currentTime + 0.9);
+
+      // 泛音层
+      const osc2 = ctx.createOscillator();
+      const gain2 = ctx.createGain();
+      osc2.type = 'triangle';
+      osc2.connect(gain2);
+      gain2.connect(ctx.destination);
+      osc2.frequency.setValueAtTime(200, ctx.currentTime);
+      osc2.frequency.exponentialRampToValueAtTime(1000, ctx.currentTime + 0.8);
+      gain2.gain.setValueAtTime(0.04, ctx.currentTime);
+      gain2.gain.linearRampToValueAtTime(0.12, ctx.currentTime + 0.6);
+      gain2.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.9);
+      osc2.start();
+      osc2.stop(ctx.currentTime + 0.9);
+
+      // 爆发
+      setTimeout(() => {
+        const bufferSize = ctx.sampleRate * 0.5;
+        const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+          data[i] = Math.random() * 2 - 1;
+        }
+        const noise = ctx.createBufferSource();
+        noise.buffer = buffer;
+        const filter = ctx.createBiquadFilter();
+        filter.type = 'bandpass';
+        filter.frequency.value = 1500;
+        filter.Q.value = 2;
+        const gain = ctx.createGain();
+        noise.connect(filter);
+        filter.connect(gain);
+        gain.connect(ctx.destination);
+        gain.gain.setValueAtTime(0.4, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
+        noise.start();
+        noise.stop(ctx.currentTime + 0.5);
+
+        // 高频闪光音
+        const spark = ctx.createOscillator();
+        const sparkGain = ctx.createGain();
+        spark.type = 'sine';
+        spark.connect(sparkGain);
+        sparkGain.connect(ctx.destination);
+        spark.frequency.setValueAtTime(2000, ctx.currentTime);
+        spark.frequency.exponentialRampToValueAtTime(5000, ctx.currentTime + 0.1);
+        spark.frequency.exponentialRampToValueAtTime(1000, ctx.currentTime + 0.3);
+        sparkGain.gain.setValueAtTime(0.12, ctx.currentTime);
+        sparkGain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
+        spark.start();
+        spark.stop(ctx.currentTime + 0.3);
+      }, 800);
+    }
+
+    // 根据动作播放音效
+    function playSoundForAction(action) {
+      if (!audioInitialized) return; // 音频未激活时不播放
+      try {
+        switch(action) {
+          case 'punch':
+            playSmallSound();
+            break;
+          case 'kick':
+            playMediumSound();
+            break;
+          case 'training':
+            // training 随机播放小招或中招
+            Math.random() > 0.5 ? playSmallSound() : playMediumSound();
+            break;
+          case 'awakening':
+            playBigSound();
+            break;
+        }
+      } catch(e) {
+        console.error('Sound error:', e);
+      }
+    }
+
+    // ========== 倒计时 ==========
+    let countdown = 30;
+    const timerEl = document.getElementById('timer');
+    const countdownEl = document.getElementById('countdown');
+    let countdownInterval = null;
+
+    function startCountdown() {
+      if (countdownInterval) return;
+      countdownInterval = setInterval(() => {
+        countdown--;
+        if (countdown > 0) {
+          timerEl.textContent = countdown;
+        } else {
+          clearInterval(countdownInterval);
+          countdownEl.innerHTML = 'SoloBrave，最勇敢的人就是一支完整队伍<br>训练完成！';
+          countdownEl.style.color = '#FBBF24';
+          countdownEl.style.textShadow = '0 0 20px #FBBF24';
+        }
+      }, 1000);
+    }
+
+    // ========== Matrix 代码雨 ==========
+    const canvas = document.getElementById('matrix-canvas');
+    const ctx = canvas.getContext('2d');
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+
+    // 50个一堂金句
+    const quotes = [
+      '实事求是是我们的零号原则',
+      '解放思想，是破局的关键',
+      '相信成长，是陪伴的前提',
+      '无限进步，是对成长的不设限',
+      '最佳实践，是对审美的极致追求',
+      '知行合一，是理论与实践的深度融合',
+      '难而正确，是一堂坚持的核心价值选择',
+      '长期主义，是为长远价值做决策',
+      '十年饮冰，难凉热血',
+      '创业是世界上最好的大学',
+      '无限进步的人浑身散发着光',
+      '奔跑者永不落幕，学习者永不为奴',
+      '天天做小事，累积惊天地',
+      '做你自己，因为别人都有人做了',
+      '一本正经，堂堂正正',
+      '在一堂，挑战成长的极限',
+      '科学才是唯一的道路',
+      '挑战无极限，成长不设限',
+      '怕什么真理无穷，进一寸有一寸的欢喜',
+      '追光的人自己也会身披万丈光芒',
+      '追浪花的人起跑很快，造大船的人征途很远',
+      '流水不争先，争的是滔滔不绝',
+      '一念既出，万山无阻',
+      '只有无限进步，才能摆脱生活的重复',
+      '别说你爬过的山，只有早高峰',
+      '时代正在奖励那些，周末还偷偷学习的人',
+      '做有效的事，而不是做有效率的事',
+      '与其在别处仰望，不如在这里并肩',
+      '成功并不在于从不犯错，而是不重蹈覆辙',
+      '空谈误国，有本事来写一份优秀作业',
+      '不复盘叫重复，复盘了就叫精进',
+      '半山坡总是最拥挤的，我们主峰相见',
+      '栉风沐雨，道阻且长',
+      '强大自己，是解决问题唯一的方法',
+      '把根扎好，长成参天大树的事情交给老天',
+      '世上无难事，只要肯复盘',
+      '如果全世界只认真训练一个能力的话，那就练习"复盘"吧~！',
+      '失败不是成功之母，高质量的复盘才是',
+      '老手死于趋势，新人死于常识',
+      '成长是解决问题唯一的方法',
+      '我们大概率会失败，但是我们一定会成功',
+      '在时间轴上做事，跳出时间轴修身',
+      '人成长了做新事，事成长了带新人',
+      '把书越读越厚是量变式成长，把书越读越薄是质变式顿悟',
+      '先在黑板上成功，再在现实世界里成功',
+      '追求最佳转化率，不到最佳终不还!',
+      '人生所遇转化率，背后必有客观规律',
+      '用ROI讲道理，是最高级的管理手段',
+      '基本功是团队能力的最小单位',
+      '苦练基本功，越练越轻松'
+    ];
+
+    // 每句金句对应的核心关键词（白色高亮）
+    const whiteWords = [
+      '实事求是',      // 1
+      '破局',          // 2
+      '相信成长',      // 3
+      '无限进步',      // 4
+      '极致',          // 5
+      '知行合一',      // 6
+      '难而正确',      // 7
+      '长期主义',      // 8
+      '难凉热血',      // 9
+      '创业',          // 10
+      '散发着光',      // 11
+      '永不落幕',      // 12
+      '惊天地',        // 13
+      '做你自己',      // 14
+      '堂堂正正',      // 15
+      '挑战极限',      // 16
+      '科学',          // 17
+      '无极限',        // 18
+      '一寸欢喜',      // 19
+      '身披光芒',      // 20
+      '造大船',        // 21
+      '滔滔不绝',      // 22
+      '万山无阻',      // 23
+      '无限进步',      // 24
+      '早高峰',        // 25
+      '偷偷学习',      // 26
+      '做有效的事',    // 27
+      '并肩',          // 28
+      '不重蹈覆辙',    // 29
+      '优秀作业',      // 30
+      '精进',          // 31
+      '主峰相见',      // 32
+      '道阻且长',      // 33
+      '强大自己',      // 34
+      '参天大树',      // 35
+      '肯复盘',        // 36
+      '复盘',          // 37
+      '高质量复盘',    // 38
+      '常识',          // 39
+      '成长',          // 40
+      '一定会成功',    // 41
+      '跳出时间轴',    // 42
+      '做新事',        // 43
+      '质变式顿悟',    // 44
+      '先在黑板',      // 45
+      '最佳转化率',    // 46
+      '客观规律',      // 47
+      'ROI',           // 48
+      '基本功',        // 49
+      '基本功'         // 50
+    ];
+
+    // 获取金句中白色字符的位置
+    function getWhiteIndices(quote, keyword) {
+      const indices = new Set();
+      const startIdx = quote.indexOf(keyword);
+      if (startIdx !== -1) {
+        for (let i = 0; i < keyword.length; i++) {
+          indices.add(startIdx + i);
+        }
+      }
+      return indices;
+    }
+
+    const fontSize = 27;
+    let columns = Math.floor(canvas.width / fontSize * 0.7); // 列数减少30%
+    let drops = [];
+
+    for (let i = 0; i < columns; i++) {
+      drops.push(Math.floor(Math.random() * -50)); // 随机起始位置，错落有致
+    }
+
+    // 每列对应一个金句
+    const columnQuotes = [];
+
+    function initColumnQuotes() {
+      columnQuotes.length = 0;
+      for (let i = 0; i < columns; i++) {
+        columnQuotes.push(quotes[Math.floor(Math.random() * quotes.length)]);
+      }
+    }
+
+    initColumnQuotes();
+
+    function drawMatrix() {
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      ctx.font = fontSize + 'px monospace';
+
+      for (let i = 0; i < drops.length; i++) {
+        const currentQuote = columnQuotes[i];
+        // 不用取模，让金句只显示一遍
+        const charIndex = Math.floor(drops[i]) - 1;
+
+        const x = i * fontSize * 1.82; // 列间距再增加30%
+        const y = drops[i] * fontSize * 1.5; // 行间距增加50%
+
+        // 只有当 charIndex 在金句范围内才显示
+        if (charIndex >= 0 && charIndex < currentQuote.length) {
+          const char = currentQuote[charIndex];
+          const quoteIndex = quotes.indexOf(currentQuote);
+          const keyword = whiteWords[quoteIndex];
+          const whiteIndices = getWhiteIndices(currentQuote, keyword);
+
+          // 判断当前字符是否在关键词位置
+          if (whiteIndices.has(charIndex)) {
+            ctx.fillStyle = '#FFF';
+          } else {
+            ctx.fillStyle = '#00FF41';
+          }
+          ctx.fillText(char, x, y);
+        }
+
+        // 当金句完全离开屏幕后，重置并换新金句
+        // drops[i] - 1 > currentQuote.length 表示金句已全部显示完
+        // y > canvas.height 表示已离开屏幕底部
+        if ((drops[i] - 1) > currentQuote.length && y > canvas.height) {
+          drops[i] = 0;
+          columnQuotes[i] = quotes[Math.floor(Math.random() * quotes.length)];
+        }
+        drops[i]++;
+      }
+    }
+
+    let matrixInterval = null;
+
+    function startMatrix() {
+      if (matrixInterval) return;
+      matrixInterval = setInterval(drawMatrix, 75);
+    }
+
+    window.addEventListener('resize', () => {
+      columns = Math.floor(canvas.width / fontSize * 0.7); // 列数减少30%
+      drops = [];
+      for (let i = 0; i < columns; i++) {
+        drops.push(Math.floor(Math.random() * -50)); // 随机起始位置
+      }
+      initColumnQuotes();
+    });
+
+    // ========== 自动循环动作（随机序列）==========
+    const fighter = document.getElementById('fighter');
+    const basicActions = ['idle', 'punch', 'kick', 'training'];
+    const specialAction = 'awakening';
+
+    function sleep(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    // 生成随机动作序列
+    function generateSequence() {
+      const sequence = [];
+      // 随机 5-10 个基础动作
+      const length = Math.floor(Math.random() * 6) + 5;
+
+      for (let i = 0; i < length; i++) {
+        const action = basicActions[Math.floor(Math.random() * basicActions.length)];
+        const duration = Math.floor(Math.random() * 400) + 300; // 300-700ms
+        sequence.push({ action, duration });
+      }
+
+      // 大招
+      sequence.push({ action: specialAction, duration: 1500 });
+
+      // 喘口气
+      sequence.push({ action: 'idle', duration: Math.floor(Math.random() * 500) + 500 });
+
+      return sequence;
+    }
+
+    // 播放动作序列
+    async function playSequence() {
+      const sequence = generateSequence();
+
+      for (const item of sequence) {
+        fighter.className = 'pixel-fighter ' + item.action;
+        // 播放对应音效
+        playSoundForAction(item.action);
+        await sleep(item.duration);
+      }
+
+      // 循环
+      playSequence();
+    }
+
+    // ========== 开始按钮 ==========
+    const startOverlay = document.getElementById('startOverlay');
+    const startBtn = document.getElementById('startBtn');
+
+    startBtn.addEventListener('click', () => {
+      // 隐藏开始弹窗
+      startOverlay.classList.add('hidden');
+
+      // 初始化音频
+      initAudio();
+
+      // 启动所有动画
+      startMatrix();
+      startCountdown();
+      playSequence();
+    });
+  </script>
+</body>
+</html>
