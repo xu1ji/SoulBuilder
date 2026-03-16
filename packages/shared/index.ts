@@ -425,6 +425,9 @@ export const MATRIX_COLORS = {
   red: '#EF4444',
 } as const
 
+// 类型导出
+export type MatrixColors = typeof MATRIX_COLORS
+
 /**
  * 训练方式详情
  */
