@@ -1,0 +1,38 @@
+import React from 'react';
+
+export const getRankColor = (rank: 'S' | 'A' | 'B' | 'C' | 'D' | 'E') => {
+  return '#FFFFFF'; // All white text on dark background
+};
+
+export const getRankBg = (rank: 'S' | 'A' | 'B' | 'C' | 'D' | 'E') => {
+  return '#111827'; // All dark background for badges
+};
+
+export const getStatusColor = (status: string) => {
+  switch (status) {
+    case 'new': return 'bg-gray-400';
+    case 'trained': return 'bg-success';
+    case 'upgradable': return 'bg-warning';
+    default: return 'bg-gray-400';
+  }
+};
+
+export const getStatusLabel = (status: string) => {
+  switch (status) {
+    case 'new': return '新建';
+    case 'trained': return '已训练';
+    case 'upgradable': return '可升级';
+    default: return status;
+  }
+};
+
+export const getStars = (rank: 'S' | 'A' | 'B' | 'C' | 'D' | 'E') => {
+  switch (rank) {
+    case 'S': return '★★★★★';
+    case 'A': return '★★★★';
+    case 'B': return '★★★';
+    case 'C': return '★★';
+    case 'D': return '★';
+    default: return '';
+  }
+};
