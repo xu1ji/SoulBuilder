@@ -43,7 +43,7 @@ function generateSequence(): Array<{ action: FighterAction; duration: number }> 
 
 export function TrainingAnimation({
   onComplete,
-  duration = 30,
+  duration = 20,
   agentName = 'SoloBrave',
   beforeScore = 85,
   afterScore = 94,
@@ -271,10 +271,10 @@ export function TrainingAnimation({
               ))}
             </div>
 
-            {/* 继续按钮 */}
+            {/* 确认按钮 */}
             <button className="comparison-continue-btn" onClick={handleContinue}>
-              <span>→</span>
-              继续升级
+              <span>✓</span>
+              最后确认更新
             </button>
           </div>
         </div>

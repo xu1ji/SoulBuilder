@@ -35,7 +35,7 @@ const TrainingAnimationPage: React.FC = () => {
   return (
     <TrainingAnimation
       onComplete={handleComplete}
-      duration={30}
+      duration={20}
       agentName={currentAgent?.name || 'SoloBrave'}
       beforeScore={beforeScore}
       afterScore={afterScore}
