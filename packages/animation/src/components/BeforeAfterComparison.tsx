@@ -7,6 +7,30 @@ import { MATRIX_COLORS } from '@soulbuilder/shared'
 import type { BeforeAfterComparisonProps } from '../types'
 
 /**
+ * 继续按钮组件
+ */
+function ContinueButton({ onClick }: { onClick: () => void }) {
+  const [visible, setVisible] = useState(false)
+
+  useEffect(() => {
+    const timer = setTimeout(() => setVisible(true), 2000)
+    return () => clearTimeout(timer)
+  }, [])
+
+  if (!visible) return null
+
+  return (
+    <button
+      onClick={onClick}
+      style={styles.continueButton}
+    >
+      <span style={styles.continueIcon}>→</span>
+      继续升级
+    </button>
+  )
+}
+
+/**
  * 分数跳动动画组件
  */
 function AnimatedScore({ value, color }: { value: number; color: string }) {
@@ -85,6 +109,7 @@ export const BeforeAfterComparison = memo(function BeforeAfterComparison({
   before,
   after,
   skills,
+  onContinue,
 }: BeforeAfterComparisonProps) {
   const [visible, setVisible] = useState(false)
   const scoreDiff = after.score - before.score
@@ -140,6 +165,9 @@ export const BeforeAfterComparison = memo(function BeforeAfterComparison({
           />
         ))}
       </div>
+
+      {/* 继续按钮 */}
+      <ContinueButton onClick={onContinue} />
     </div>
   )
 })
@@ -212,6 +240,27 @@ const styles: Record<string, React.CSSProperties> = {
   },
   cursor: {
     animation: 'blink 0.5s infinite',
+  },
+  continueButton: {
+    marginTop: '30px',
+    padding: '12px 32px',
+    fontFamily: 'monospace',
+    fontSize: '1rem',
+    fontWeight: 'bold',
+    color: MATRIX_COLORS.black,
+    background: MATRIX_COLORS.green,
+    border: 'none',
+    borderRadius: '8px',
+    cursor: 'pointer',
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: '8px',
+    boxShadow: `0 0 20px ${MATRIX_COLORS.green}60`,
+    transition: 'all 0.3s ease',
+  },
+  continueIcon: {
+    fontSize: '1.25rem',
+    transition: 'transform 0.3s ease',
   },
 }
 

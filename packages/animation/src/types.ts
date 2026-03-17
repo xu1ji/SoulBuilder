@@ -52,6 +52,7 @@ export interface BeforeAfterComparisonProps {
     rank: AgentRank
   }
   skills: string[]
+  onContinue: () => void  // 用户点击"继续升级"时调用
 }
 
 /**

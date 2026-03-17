@@ -397,13 +397,31 @@
     </div>
     <script>
         // SCENARIO_DATA, DOCS_DATA, GROUPS_DATA 来自外部 js
-        const docs = DOCS_DATA;
+        window.onerror = function (msg, url, lineNo, columnNo, error) {
+            console.error(msg, url, lineNo, columnNo, error);
+            add('ai', `❌ 运行时错误: ${msg}<br>位置: ${lineNo}:${columnNo}`, '系统故障');
+            return false;
+        };
+
         const scen = SCENARIO_DATA;
+        const docs = DOCS_DATA;
         const groups = GROUPS_DATA;
-        const tags = { "Meta": "核心考古", "Persona": "数字画像", "Intro": "入门协议", "Inter": "进阶教案", "Adv": "高阶执行", "Plan": "业务架构", "Action": "实战闭环", "Tutorial": "系统手册", "Asset": "全量资产报告" };
+        const tags = {
+            'Meta': '🏛️ 核心基因与复盘',
+            'Persona': '👤 专家人才矩阵',
+            'Intro': '🌱 生存与入门协议',
+            'Inter': '📈 进阶协同准则',
+            'Adv': '🦅 高阶自动化引擎',
+            'Plan': '🗺️ 业务架构蓝图',
+            'Action': '🎬 实战博弈纪录',
+            'Tutorial': '📚 系统级教案',
+            'Asset': '📦 全量底层资产'
+        };
 
         let idx = -1;
         function init() {
+            console.log("Initializing v6.0 system...");
+            add('ai', '系统核心已加载。SoulBuilder v6.0 仿真引擎准备就绪。', 'Ready');
             Object.keys(tags).forEach(t => {
                 if (groups[t]?.length) {
                     const g = document.createElement('div'); g.className = 'asset-group';
@@ -420,6 +438,7 @@
         }
 
         function next() {
+            console.log("Advancing to next step...", idx + 1);
             if (idx < scen.length - 1) {
                 idx++; const s = scen[idx];
                 add('user', s.user);

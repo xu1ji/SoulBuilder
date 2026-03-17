@@ -18,6 +18,12 @@
     "paths": {
       "@/*": [
         "./*"
+      ],
+      "@soulbuilder/shared": [
+        "../packages/shared/index.ts"
+      ],
+      "@soulbuilder/animation": [
+        "../packages/animation/src/index.ts"
       ]
     },
     "allowImportingTsExtensions": true,

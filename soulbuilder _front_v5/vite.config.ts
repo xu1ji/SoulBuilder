@@ -13,6 +13,9 @@ export default defineConfig(({mode}) => {
     resolve: {
       alias: {
         '@': path.resolve(__dirname, '.'),
+        // 添加 SoulBuilder 包的 alias
+        '@soulbuilder/shared': path.resolve(__dirname, '../packages/shared/index.ts'),
+        '@soulbuilder/animation': path.resolve(__dirname, '../packages/animation/src/index.ts'),
       },
     },
     server: {

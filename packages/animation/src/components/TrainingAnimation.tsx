@@ -37,9 +37,15 @@ export const TrainingAnimation = memo(function TrainingAnimation({
   } = useAnimation({
     onPhaseChange,
     onComplete: () => {
+      // 动画完成后显示对比面板，不立即调用 onComplete
       setShowComparison(true)
     },
   })
+
+  // 用户点击"继续升级"时才真正触发 onComplete
+  const handleContinue = () => {
+    onComplete()
+  }
 
   // 技能打字机效果
   useEffect(() => {
@@ -124,6 +130,7 @@ export const TrainingAnimation = memo(function TrainingAnimation({
               rank: config.afterRank,
             }}
             skills={config.skills}
+            onContinue={handleContinue}
           />
         )}
       </div>
