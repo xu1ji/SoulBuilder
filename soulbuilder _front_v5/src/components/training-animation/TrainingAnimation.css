@@ -1,0 +1,342 @@
+/**
+ * 训练动画样式
+ */
+
+.training-animation {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: #000;
+  overflow: hidden;
+  font-family: 'Courier New', monospace;
+  z-index: 9999;
+}
+
+/* ============ 开始弹窗 ============ */
+.training-start-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: #000;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.training-start-dialog {
+  text-align: center;
+  padding: 40px 60px;
+  border: 2px solid #00FF41;
+  background: rgba(0, 20, 0, 0.95);
+  box-shadow: 0 0 60px rgba(0, 255, 65, 0.3);
+}
+
+.training-start-dialog h2 {
+  color: #00FF41;
+  font-size: 1.8rem;
+  margin-bottom: 15px;
+  text-shadow: 0 0 20px #00FF41;
+  letter-spacing: 4px;
+}
+
+.training-start-dialog p {
+  color: #008F11;
+  font-size: 1rem;
+  margin-bottom: 30px;
+}
+
+.training-start-btn {
+  background: transparent;
+  border: 2px solid #00FF41;
+  color: #00FF41;
+  padding: 15px 50px;
+  font-size: 1.2rem;
+  font-family: 'Courier New', monospace;
+  cursor: pointer;
+  transition: all 0.3s;
+  letter-spacing: 3px;
+}
+
+.training-start-btn:hover {
+  background: #00FF41;
+  color: #000;
+  box-shadow: 0 0 30px rgba(0, 255, 65, 0.5);
+}
+
+/* ============ 前景内容 ============ */
+.training-foreground {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.training-center-box {
+  background: rgba(0, 0, 0, 0.9);
+  border: 3px solid #00FF41;
+  padding: 32px 80px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 40px rgba(0, 255, 65, 0.5);
+}
+
+.training-title {
+  color: #00FF41;
+  font-size: 2.5rem;
+  text-shadow: 0 0 20px #00FF41, 0 0 40px #00FF41;
+  margin-bottom: 0;
+  letter-spacing: 8px;
+  animation: title-glow 2s ease-in-out infinite;
+}
+
+@keyframes title-glow {
+  0%, 100% { text-shadow: 0 0 20px #00FF41, 0 0 40px #00FF41; }
+  50% { text-shadow: 0 0 30px #00FF41, 0 0 60px #00FF41, 0 0 80px #00FF41; }
+}
+
+.training-countdown {
+  color: #00FF41;
+  font-size: 1.35rem;
+  margin-top: 10px;
+  margin-bottom: 20px;
+  text-shadow: 0 0 10px #00FF41;
+  letter-spacing: 2px;
+  text-align: center;
+}
+
+.training-countdown.complete {
+  color: #FBBF24;
+  text-shadow: 0 0 20px #FBBF24;
+}
+
+.training-timer {
+  color: #FFF;
+  font-weight: bold;
+  font-size: 1.65rem;
+}
+
+/* ============ 像素小人舞台 ============ */
+.training-fighter-stage {
+  position: relative;
+  width: 300px;
+  height: 220px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: translateY(-50px);
+}
+
+.training-ground-reflection {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 250px;
+  height: 60px;
+  background: radial-gradient(ellipse at center, rgba(0, 255, 65, 0.4) 0%, transparent 70%);
+  filter: blur(15px);
+}
+
+/* ============ 底部署名 ============ */
+.training-credits {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #003d00;
+  font-size: 0.8rem;
+  text-align: center;
+  z-index: 100;
+}
+
+.training-credits a {
+  color: #008F11;
+}
+
+/* ============ 分数对比面板 ============ */
+.training-comparison-panel {
+  position: relative;
+  z-index: 20;
+  text-align: center;
+  padding: 40px 60px;
+  background: rgba(0, 0, 0, 0.9);
+  border: 2px solid #00FF41;
+  box-shadow: 0 0 60px rgba(0, 255, 65, 0.3);
+  animation: panel-fade-in 0.5s ease-out;
+}
+
+@keyframes panel-fade-in {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.comparison-title {
+  color: #FBBF24;
+  font-size: 2rem;
+  margin-bottom: 30px;
+  text-shadow: 0 0 20px #FBBF24;
+  letter-spacing: 4px;
+}
+
+.comparison-scores {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 40px;
+  margin-bottom: 30px;
+}
+
+.comparison-before,
+.comparison-after {
+  text-align: center;
+  padding: 20px 30px;
+  border-radius: 8px;
+}
+
+.comparison-before {
+  border: 1px solid #008F11;
+  background: rgba(0, 143, 17, 0.1);
+}
+
+.comparison-after {
+  border: 1px solid #4ADE80;
+  background: rgba(74, 222, 128, 0.15);
+  box-shadow: 0 0 30px rgba(74, 222, 128, 0.3);
+}
+
+.comparison-label {
+  font-size: 0.7rem;
+  color: #008F11;
+  letter-spacing: 3px;
+  margin-bottom: 10px;
+}
+
+.comparison-after .comparison-label {
+  color: #4ADE80;
+}
+
+.comparison-rank {
+  font-size: 3rem;
+  font-weight: bold;
+  color: #008F11;
+  margin-bottom: 5px;
+}
+
+.comparison-after .comparison-rank {
+  color: #FBBF24;
+  text-shadow: 0 0 20px #FBBF24;
+}
+
+.comparison-score {
+  font-size: 1.5rem;
+  color: #008F11;
+}
+
+.comparison-after .comparison-score {
+  color: #4ADE80;
+}
+
+.comparison-arrow {
+  font-size: 2.5rem;
+  color: #00FF41;
+  text-shadow: 0 0 15px #00FF41;
+}
+
+.comparison-boost {
+  font-size: 1.5rem;
+  margin-bottom: 30px;
+}
+
+.boost-plus {
+  color: #4ADE80;
+  font-weight: bold;
+}
+
+.boost-text {
+  color: #008F11;
+}
+
+.boost-rankup {
+  color: #FBBF24;
+  margin-left: 15px;
+  text-shadow: 0 0 10px #FBBF24;
+}
+
+.comparison-skills {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.skill-tag {
+  font-size: 1rem;
+  color: #00FF41;
+  text-shadow: 0 0 5px #00FF41;
+  padding: 8px 20px;
+  border: 1px solid #00FF41;
+  border-radius: 4px;
+  background: rgba(0, 255, 65, 0.1);
+  animation: skill-appear 0.3s ease-out;
+}
+
+@keyframes skill-appear {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.comparison-continue-btn {
+  margin-top: 20px;
+  padding: 15px 40px;
+  font-family: 'Courier New', monospace;
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #000;
+  background: #00FF41;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 0 30px rgba(0, 255, 65, 0.5);
+  transition: all 0.3s ease;
+  pointer-events: auto;
+}
+
+.comparison-continue-btn:hover {
+  background: #4ADE80;
+  box-shadow: 0 0 40px rgba(74, 222, 128, 0.7);
+  transform: scale(1.05);
+}
+
+.comparison-continue-btn span {
+  font-size: 1.3rem;
+}

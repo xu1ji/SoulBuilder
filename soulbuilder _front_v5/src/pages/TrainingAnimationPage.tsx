@@ -1,37 +1,47 @@
-import { useState } from 'react';
+import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { TrainingAnimation } from '@soulbuilder/animation';
-import type { AnimationPhase, AgentRank } from '@soulbuilder/shared';
+import { TrainingAnimation } from '../components/training-animation';
+import { useStore } from '../stores/useStore';
 
 const TrainingAnimationPage: React.FC = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-
-  // 动画配置
-  const config = {
-    skills: ['SPIN 销售法', 'Challenger Sale', '大客户管理策略'],
-    beforeScore: 85,
-    afterScore: 94,
-    beforeRank: 'A' as AgentRank,
-    afterRank: 'A' as AgentRank,
-  };
-
-  const handlePhaseChange = (_phase: AnimationPhase, _progress: number) => {
-    // 可以在这里添加阶段变化的处理逻辑
-  };
+  const { currentAgent } = useStore();
 
   const handleComplete = () => {
     navigate(`/agents/${id}/train/complete`);
   };
 
-  // 直接返回 TrainingAnimation 组件
-  // 它内部已经设置了 position: fixed 和全屏样式
+  // 计算训练后的分数和等级
+  const beforeScore = currentAgent?.score || 85;
+  const afterScore = Math.min(beforeScore + 9, 100); // 最多加9分
+  const beforeRank = currentAgent?.rank || 'A';
+
+  // 根据分数计算训练后等级
+  const calculateRank = (score: number): string => {
+    if (score >= 95) return 'S';
+    if (score >= 85) return 'A';
+    if (score >= 70) return 'B';
+    if (score >= 55) return 'C';
+    if (score >= 40) return 'D';
+    return 'E';
+  };
+
+  const afterRank = calculateRank(afterScore);
+
+  // 训练获得的技能
+  const skills = ['SPIN 销售法', 'Challenger Sale', '大客户管理策略'];
+
   return (
     <TrainingAnimation
-      config={config}
       onComplete={handleComplete}
-      onPhaseChange={handlePhaseChange}
-      skippable={true}
+      duration={30}
+      agentName={currentAgent?.name || 'SoloBrave'}
+      beforeScore={beforeScore}
+      afterScore={afterScore}
+      beforeRank={beforeRank}
+      afterRank={afterRank}
+      skills={skills}
     />
   );
 };

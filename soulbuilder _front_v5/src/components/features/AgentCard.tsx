@@ -59,9 +59,10 @@ export const AgentCard: React.FC<AgentCardProps> = ({ agent }) => {
       transition={{ type: 'spring', stiffness: 400, damping: 25 }}
       className="relative bg-gray-50 rounded-2xl border border-gray-200/60 p-5 shadow-lg shadow-gray-200/50 transition-all duration-200"
     >
-      {/* 等级标识 - 右上角半透明 */}
-      <div className="absolute top-3 right-4 text-2xl font-bold text-gray-900/40">
-        {agent.rank}
+      {/* 等级标识 + 分数 - 右上角 */}
+      <div className="absolute top-3 right-4 text-right">
+        <div className="text-2xl font-bold text-gray-900/40">{agent.rank}</div>
+        <div className="text-xs font-medium text-gray-400 mt-0.5">{agent.score}分</div>
       </div>
 
       {/* 头部：头像 + 名称 + 状态 */}
@@ -122,13 +123,8 @@ export const AgentCard: React.FC<AgentCardProps> = ({ agent }) => {
         <DimensionMiniBar label="记忆" value={agent.dimensions.memory} />
       </div>
 
-      {/* 底部：状态 + 操作 */}
-      <div className="flex items-center justify-between pt-3 border-t border-gray-100">
-        <div className="flex items-center gap-2">
-          <span className="text-[10px] font-medium text-gray-400 uppercase tracking-wider">
-            {agent.score}分
-          </span>
-        </div>
+      {/* 底部：操作按钮 */}
+      <div className="flex items-center justify-end pt-3 border-t border-gray-100">
         <div className="flex gap-2">
           <button
             onClick={() => navigate(`/agents/${agent.id}`)}

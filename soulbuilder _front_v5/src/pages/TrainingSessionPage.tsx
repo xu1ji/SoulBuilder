@@ -126,20 +126,23 @@ const TrainingSessionPage: React.FC = () => {
 
       {/* 输入区域 */}
       <div className="p-4 border-t border-gray-100 bg-white">
-        <div className="max-w-2xl mx-auto flex gap-3">
-          <input
+        <div className="max-w-3xl mx-auto flex gap-3">
+          <textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleSend()}
-            placeholder="输入回答..."
+            placeholder="请充分表达和发挥你的想象力、创造力，建议用语音自由表达效果最佳，不用怕错别字和废话，放心交给我，都会处理好..."
+            rows={4}
             className="flex-1 px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl
-                       text-sm focus:bg-white focus:border-black focus:outline-none transition-all"
+                       text-sm focus:bg-white focus:border-black focus:outline-none transition-all
+                       resize-none leading-relaxed"
           />
           <button
             onClick={handleSend}
             disabled={!input.trim() || isTyping}
-            className="px-4 py-3 bg-black text-white rounded-xl text-sm font-medium
-                       hover:bg-gray-800 transition-colors disabled:bg-gray-100 disabled:text-gray-300"
+            className="px-6 py-3 bg-black text-white rounded-xl text-sm font-medium
+                       hover:bg-gray-800 transition-colors disabled:bg-gray-100 disabled:text-gray-300
+                       self-end"
           >
             发送
           </button>

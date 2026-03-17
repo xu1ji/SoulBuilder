@@ -1,0 +1,207 @@
+/**
+ * 像素小人 CSS 动画 - box-shadow 实现
+ * 迁移自 matrix-kungfu-demo.html
+ */
+
+.pixel-fighter {
+  width: 20px;
+  height: 20px;
+  background: #00FF41;
+  position: relative;
+  margin-left: -100px;
+  transform-origin: center center;
+  transform: scale(0.5);
+}
+
+/* ============ Idle 站立/呼吸 ============ */
+.pixel-fighter.idle {
+  animation: fighter-idle 0.6s steps(1) infinite;
+}
+
+@keyframes fighter-idle {
+  0%, 100% {
+    box-shadow:
+      40px 0 0 #00FF41, 60px 0 0 #00FF41,
+      20px 20px 0 #00FF41, 40px 20px 0 #00FF41, 60px 20px 0 #00FF41, 80px 20px 0 #00FF41,
+      20px 40px 0 #00FF41, 40px 40px 0 #00FF41, 60px 40px 0 #00FF41, 80px 40px 0 #00FF41,
+      40px 60px 0 #00FF41, 60px 60px 0 #00FF41,
+      0px 80px 0 #00FF41, 20px 80px 0 #00FF41, 40px 80px 0 #00FF41, 60px 80px 0 #00FF41, 80px 80px 0 #00FF41, 100px 80px 0 #00FF41,
+      0px 100px 0 #00FF41, 20px 100px 0 #00FF41, 40px 100px 0 #00FF41, 60px 100px 0 #00FF41, 80px 100px 0 #00FF41, 100px 100px 0 #00FF41,
+      20px 120px 0 #00FF41, 40px 120px 0 #00FF41, 60px 120px 0 #00FF41, 80px 120px 0 #00FF41,
+      -40px 100px 0 #00FF41, -20px 100px 0 #00FF41,
+      120px 100px 0 #00FF41, 140px 100px 0 #00FF41,
+      20px 140px 0 #00FF41, 40px 140px 0 #00FF41, 80px 140px 0 #00FF41, 100px 140px 0 #00FF41,
+      20px 160px 0 #00FF41, 40px 160px 0 #00FF41, 80px 160px 0 #00FF41, 100px 160px 0 #00FF41,
+      20px 180px 0 #00FF41, 100px 180px 0 #00FF41;
+  }
+  50% {
+    box-shadow:
+      40px -10px 0 #00FF41, 60px -10px 0 #00FF41,
+      20px 10px 0 #00FF41, 40px 10px 0 #00FF41, 60px 10px 0 #00FF41, 80px 10px 0 #00FF41,
+      20px 30px 0 #00FF41, 40px 30px 0 #00FF41, 60px 30px 0 #00FF41, 80px 30px 0 #00FF41,
+      40px 50px 0 #00FF41, 60px 50px 0 #00FF41,
+      0px 70px 0 #00FF41, 20px 70px 0 #00FF41, 40px 70px 0 #00FF41, 60px 70px 0 #00FF41, 80px 70px 0 #00FF41, 100px 70px 0 #00FF41,
+      0px 90px 0 #00FF41, 20px 90px 0 #00FF41, 40px 90px 0 #00FF41, 60px 90px 0 #00FF41, 80px 90px 0 #00FF41, 100px 90px 0 #00FF41,
+      20px 110px 0 #00FF41, 40px 110px 0 #00FF41, 60px 110px 0 #00FF41, 80px 110px 0 #00FF41,
+      -40px 90px 0 #00FF41, -20px 90px 0 #00FF41,
+      120px 90px 0 #00FF41, 140px 90px 0 #00FF41,
+      20px 130px 0 #00FF41, 40px 130px 0 #00FF41, 80px 130px 0 #00FF41, 100px 130px 0 #00FF41,
+      20px 150px 0 #00FF41, 40px 150px 0 #00FF41, 80px 150px 0 #00FF41, 100px 150px 0 #00FF41,
+      20px 170px 0 #00FF41, 100px 170px 0 #00FF41;
+  }
+}
+
+/* ============ Punch 出拳 ============ */
+.pixel-fighter.punch {
+  animation: fighter-punch 0.3s steps(1) infinite;
+}
+
+@keyframes fighter-punch {
+  0%, 100% {
+    box-shadow:
+      40px 0 0 #00FF41, 60px 0 0 #00FF41,
+      20px 20px 0 #00FF41, 40px 20px 0 #00FF41, 60px 20px 0 #00FF41, 80px 20px 0 #00FF41,
+      20px 40px 0 #00FF41, 40px 40px 0 #00FF41, 60px 40px 0 #00FF41, 80px 40px 0 #00FF41,
+      40px 60px 0 #00FF41, 60px 60px 0 #00FF41,
+      0px 80px 0 #00FF41, 20px 80px 0 #00FF41, 40px 80px 0 #00FF41, 60px 80px 0 #00FF41, 80px 80px 0 #00FF41, 100px 80px 0 #00FF41,
+      0px 100px 0 #00FF41, 20px 100px 0 #00FF41, 40px 100px 0 #00FF41, 60px 100px 0 #00FF41, 80px 100px 0 #00FF41, 100px 100px 0 #00FF41,
+      20px 120px 0 #00FF41, 40px 120px 0 #00FF41, 60px 120px 0 #00FF41, 80px 120px 0 #00FF41,
+      -40px 100px 0 #00FF41, -20px 100px 0 #00FF41,
+      120px 100px 0 #00FF41, 140px 100px 0 #00FF41, 160px 100px 0 #00FF41, 180px 100px 0 #00FF41, 200px 100px 0 #00FF41,
+      20px 140px 0 #00FF41, 40px 140px 0 #00FF41, 80px 140px 0 #00FF41, 100px 140px 0 #00FF41,
+      20px 160px 0 #00FF41, 40px 160px 0 #00FF41, 80px 160px 0 #00FF41, 100px 160px 0 #00FF41,
+      20px 180px 0 #00FF41, 100px 180px 0 #00FF41;
+  }
+  50% {
+    box-shadow:
+      40px 0 0 #00FF41, 60px 0 0 #00FF41,
+      20px 20px 0 #00FF41, 40px 20px 0 #00FF41, 60px 20px 0 #00FF41, 80px 20px 0 #00FF41,
+      20px 40px 0 #00FF41, 40px 40px 0 #00FF41, 60px 40px 0 #00FF41, 80px 40px 0 #00FF41,
+      40px 60px 0 #00FF41, 60px 60px 0 #00FF41,
+      -20px 80px 0 #00FF41, 0px 80px 0 #00FF41, 20px 80px 0 #00FF41, 40px 80px 0 #00FF41, 60px 80px 0 #00FF41, 80px 80px 0 #00FF41,
+      -20px 100px 0 #00FF41, 0px 100px 0 #00FF41, 20px 100px 0 #00FF41, 40px 100px 0 #00FF41, 60px 100px 0 #00FF41, 80px 100px 0 #00FF41,
+      0px 120px 0 #00FF41, 20px 120px 0 #00FF41, 40px 120px 0 #00FF41, 60px 120px 0 #00FF41, 80px 120px 0 #00FF41,
+      100px 40px 0 #00FF41, 120px 40px 0 #00FF41, 140px 40px 0 #00FF41, 160px 40px 0 #00FF41, 180px 40px 0 #00FF41, 200px 40px 0 #00FF41, 220px 40px 0 #00FF41,
+      20px 140px 0 #00FF41, 40px 140px 0 #00FF41, 80px 140px 0 #00FF41, 100px 140px 0 #00FF41,
+      20px 160px 0 #00FF41, 40px 160px 0 #00FF41, 80px 160px 0 #00FF41, 100px 160px 0 #00FF41,
+      20px 180px 0 #00FF41, 100px 180px 0 #00FF41;
+  }
+}
+
+/* ============ Kick 踢腿 ============ */
+.pixel-fighter.kick {
+  animation: fighter-kick 0.4s steps(1) infinite;
+}
+
+@keyframes fighter-kick {
+  0%, 100% {
+    box-shadow:
+      40px 0 0 #00FF41, 60px 0 0 #00FF41,
+      20px 20px 0 #00FF41, 40px 20px 0 #00FF41, 60px 20px 0 #00FF41, 80px 20px 0 #00FF41,
+      20px 40px 0 #00FF41, 40px 40px 0 #00FF41, 60px 40px 0 #00FF41, 80px 40px 0 #00FF41,
+      40px 60px 0 #00FF41, 60px 60px 0 #00FF41,
+      0px 80px 0 #00FF41, 20px 80px 0 #00FF41, 40px 80px 0 #00FF41, 60px 80px 0 #00FF41, 80px 80px 0 #00FF41, 100px 80px 0 #00FF41,
+      0px 100px 0 #00FF41, 20px 100px 0 #00FF41, 40px 100px 0 #00FF41, 60px 100px 0 #00FF41, 80px 100px 0 #00FF41, 100px 100px 0 #00FF41,
+      20px 120px 0 #00FF41, 40px 120px 0 #00FF41, 60px 120px 0 #00FF41, 80px 120px 0 #00FF41,
+      -40px 100px 0 #00FF41, -20px 100px 0 #00FF41,
+      120px 100px 0 #00FF41, 140px 100px 0 #00FF41,
+      20px 140px 0 #00FF41, 40px 140px 0 #00FF41, 80px 140px 0 #00FF41, 100px 140px 0 #00FF41,
+      20px 160px 0 #00FF41, 40px 160px 0 #00FF41, 80px 160px 0 #00FF41, 100px 160px 0 #00FF41,
+      20px 180px 0 #00FF41, 100px 180px 0 #00FF41;
+  }
+  50% {
+    box-shadow:
+      40px 0 0 #00FF41, 60px 0 0 #00FF41,
+      20px 20px 0 #00FF41, 40px 20px 0 #00FF41, 60px 20px 0 #00FF41, 80px 20px 0 #00FF41,
+      20px 40px 0 #00FF41, 40px 40px 0 #00FF41, 60px 40px 0 #00FF41, 80px 40px 0 #00FF41,
+      40px 60px 0 #00FF41, 60px 60px 0 #00FF41,
+      0px 80px 0 #00FF41, 20px 80px 0 #00FF41, 40px 80px 0 #00FF41, 60px 80px 0 #00FF41, 80px 80px 0 #00FF41, 100px 80px 0 #00FF41,
+      0px 100px 0 #00FF41, 20px 100px 0 #00FF41, 40px 100px 0 #00FF41, 60px 100px 0 #00FF41, 80px 100px 0 #00FF41, 100px 100px 0 #00FF41,
+      20px 120px 0 #00FF41, 40px 120px 0 #00FF41, 60px 120px 0 #00FF41, 80px 120px 0 #00FF41,
+      -20px 80px 0 #00FF41, 0px 80px 0 #00FF41,
+      120px 80px 0 #00FF41, 140px 80px 0 #00FF41,
+      20px 140px 0 #00FF41, 40px 140px 0 #00FF41,
+      120px 140px 0 #00FF41, 140px 140px 0 #00FF41, 160px 140px 0 #00FF41, 180px 140px 0 #00FF41, 200px 140px 0 #00FF41,
+      20px 160px 0 #00FF41,
+      180px 160px 0 #00FF41, 200px 160px 0 #00FF41,
+      20px 180px 0 #00FF41,
+      200px 180px 0 #00FF41;
+  }
+}
+
+/* ============ Training 训练中 ============ */
+.pixel-fighter.training {
+  animation: fighter-training 1s steps(1) infinite;
+}
+
+@keyframes fighter-training {
+  0%, 100% {
+    box-shadow:
+      40px 0 0 #00FF41, 60px 0 0 #00FF41,
+      20px 20px 0 #00FF41, 40px 20px 0 #00FF41, 60px 20px 0 #00FF41, 80px 20px 0 #00FF41,
+      20px 40px 0 #00FF41, 40px 40px 0 #00FF41, 60px 40px 0 #00FF41, 80px 40px 0 #00FF41,
+      40px 60px 0 #00FF41, 60px 60px 0 #00FF41,
+      0px 80px 0 #00FF41, 20px 80px 0 #00FF41, 40px 80px 0 #00FF41, 60px 80px 0 #00FF41, 80px 80px 0 #00FF41, 100px 80px 0 #00FF41,
+      0px 100px 0 #00FF41, 20px 100px 0 #00FF41, 40px 100px 0 #00FF41, 60px 100px 0 #00FF41, 80px 100px 0 #00FF41, 100px 100px 0 #00FF41,
+      20px 120px 0 #00FF41, 40px 120px 0 #00FF41, 60px 120px 0 #00FF41, 80px 120px 0 #00FF41,
+      -40px 100px 0 #00FF41, -20px 100px 0 #00FF41,
+      120px 100px 0 #00FF41, 140px 100px 0 #00FF41,
+      20px 140px 0 #00FF41, 40px 140px 0 #00FF41, 80px 140px 0 #00FF41, 100px 140px 0 #00FF41,
+      20px 160px 0 #00FF41, 40px 160px 0 #00FF41, 80px 160px 0 #00FF41, 100px 160px 0 #00FF41,
+      20px 180px 0 #00FF41, 100px 180px 0 #00FF41;
+  }
+  50% {
+    box-shadow:
+      40px -10px 0 #FBBF24, 60px -10px 0 #FBBF24,
+      20px 10px 0 #FBBF24, 40px 10px 0 #FBBF24, 60px 10px 0 #FBBF24, 80px 10px 0 #FBBF24,
+      20px 30px 0 #FBBF24, 40px 30px 0 #FBBF24, 60px 30px 0 #FBBF24, 80px 30px 0 #FBBF24,
+      40px 50px 0 #FBBF24, 60px 50px 0 #FBBF24,
+      0px 70px 0 #FBBF24, 20px 70px 0 #FBBF24, 40px 70px 0 #FBBF24, 60px 70px 0 #FBBF24, 80px 70px 0 #FBBF24, 100px 70px 0 #FBBF24,
+      0px 90px 0 #FBBF24, 20px 90px 0 #FBBF24, 40px 90px 0 #FBBF24, 60px 90px 0 #FBBF24, 80px 90px 0 #FBBF24, 100px 90px 0 #FBBF24,
+      20px 110px 0 #FBBF24, 40px 110px 0 #FBBF24, 60px 110px 0 #FBBF24, 80px 110px 0 #FBBF24,
+      -40px 90px 0 #FBBF24, -20px 90px 0 #FBBF24,
+      120px 90px 0 #FBBF24, 140px 90px 0 #FBBF24,
+      20px 130px 0 #FBBF24, 40px 130px 0 #FBBF24, 80px 130px 0 #FBBF24, 100px 130px 0 #FBBF24,
+      20px 150px 0 #FBBF24, 40px 150px 0 #FBBF24, 80px 150px 0 #FBBF24, 100px 150px 0 #FBBF24,
+      20px 170px 0 #FBBF24, 100px 170px 0 #FBBF24;
+  }
+}
+
+/* ============ Awakening 觉醒 ============ */
+.pixel-fighter.awakening {
+  animation: fighter-awakening 1.5s steps(1) infinite;
+  transform-origin: bottom center;
+}
+
+@keyframes fighter-awakening {
+  0%, 100% {
+    box-shadow:
+      40px -20px 0 #FBBF24, 60px -20px 0 #FBBF24,
+      20px 0 0 #FBBF24, 40px 0 0 #FBBF24, 60px 0 0 #FBBF24, 80px 0 0 #FBBF24,
+      20px 20px 0 #FBBF24, 40px 20px 0 #FBBF24, 60px 20px 0 #FBBF24, 80px 20px 0 #FBBF24,
+      40px 40px 0 #FBBF24, 60px 40px 0 #FBBF24,
+      0px 60px 0 #FBBF24, 20px 60px 0 #FBBF24, 40px 60px 0 #FBBF24, 60px 60px 0 #FBBF24, 80px 60px 0 #FBBF24, 100px 60px 0 #FBBF24,
+      0px 80px 0 #FBBF24, 20px 80px 0 #FBBF24, 40px 80px 0 #FBBF24, 60px 80px 0 #FBBF24, 80px 80px 0 #FBBF24, 100px 80px 0 #FBBF24,
+      20px 100px 0 #FBBF24, 40px 100px 0 #FBBF24, 60px 100px 0 #FBBF24, 80px 100px 0 #FBBF24,
+      -60px 80px 0 #FBBF24, -40px 80px 0 #FBBF24, -40px 60px 0 #FBBF24, -20px 40px 0 #FBBF24,
+      140px 80px 0 #FBBF24, 160px 80px 0 #FBBF24, 140px 60px 0 #FBBF24, 160px 40px 0 #FBBF24,
+      20px 120px 0 #FBBF24, 40px 120px 0 #FBBF24, 80px 120px 0 #FBBF24, 100px 120px 0 #FBBF24,
+      20px 140px 0 #FBBF24, 40px 140px 0 #FBBF24, 80px 140px 0 #FBBF24, 100px 140px 0 #FBBF24,
+      20px 160px 0 #FBBF24, 100px 160px 0 #FBBF24;
+  }
+  50% {
+    box-shadow:
+      40px -30px 0 #FFF, 60px -30px 0 #FFF,
+      20px -10px 0 #FFF, 40px -10px 0 #FFF, 60px -10px 0 #FFF, 80px -10px 0 #FFF,
+      20px 10px 0 #FFF, 40px 10px 0 #FFF, 60px 10px 0 #FFF, 80px 10px 0 #FFF,
+      40px 30px 0 #FFF, 60px 30px 0 #FFF,
+      0px 50px 0 #FFF, 20px 50px 0 #FFF, 40px 50px 0 #FFF, 60px 50px 0 #FFF, 80px 50px 0 #FFF, 100px 50px 0 #FFF,
+      0px 70px 0 #FFF, 20px 70px 0 #FFF, 40px 70px 0 #FFF, 60px 70px 0 #FFF, 80px 70px 0 #FFF, 100px 70px 0 #FFF,
+      20px 90px 0 #FFF, 40px 90px 0 #FFF, 60px 90px 0 #FFF, 80px 90px 0 #FFF,
+      -80px 70px 0 #FFF, -60px 70px 0 #FFF, -60px 50px 0 #FFF, -40px 30px 0 #FFF,
+      160px 70px 0 #FFF, 180px 70px 0 #FFF, 160px 50px 0 #FFF, 180px 30px 0 #FFF,
+      20px 110px 0 #FFF, 40px 110px 0 #FFF, 80px 110px 0 #FFF, 100px 110px 0 #FFF,
+      20px 130px 0 #FFF, 40px 130px 0 #FFF, 80px 130px 0 #FFF, 100px 130px 0 #FFF,
+      20px 150px 0 #FFF, 100px 150px 0 #FFF;
+  }
+}
