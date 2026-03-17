@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Animation Test - 独立测试</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #0D0208; min-height: 100vh; }
+        #root { width: 100%; height: 100vh; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+    <script type="importmap">
+    {
+        "imports": {
+            "react": "https://esm.sh/react@18",
+            "react-dom/client": "https://esm.sh/react-dom@18/client"
+        }
+    }
+    </script>
+    <script type="module">
+        import React, { useState, useEffect, useRef, memo, useCallback } from 'react';
+        import { createRoot } from 'react-dom/client';
+
+        // ============ 常量 ============
+        const MATRIX_COLORS = {
+            green: '#00FF41',
+            greenDark: '#008F11',
+            white: '#FFFFFF',
+            black: '#0D0208',
+            success: '#4ADE80',
+            gold: '#FBBF24',
+            red: '#EF4444',
+        };
+
+        const KATAKANA = 'アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン';
+        const NUMBERS = '0123456789';
+        const CHARS = KATAKANA + NUMBERS;
+
+        function getRandomChar() {
+            return CHARS[Math.floor(Math.random() * CHARS.length)];
+        }
+
+        // ============ 帧数据 ============
+        const FIGHTER_FRAMES = {
+            idle: [
+                [[3, 0], [4, 0], [2, 1], [3, 1], [4, 1], [5, 1], [3, 2], [4, 2], [2, 3], [3, 3], [4, 3], [5, 3], [2, 4], [3, 4], [4, 4], [5, 4], [2, 5], [5, 5], [1, 6], [2, 6], [5, 6], [6, 6], [1, 7], [2, 7], [5, 7], [6, 7], [1, 8], [2, 8], [5, 8], [6, 8], [1, 9], [6, 9]],
+                [[3, -1], [4, -1], [2, 0], [3, 0], [4, 0], [5, 0], [3, 1], [4, 1], [2, 2], [3, 2], [4, 2], [5, 2], [2, 3], [3, 3], [4, 3], [5, 3], [2, 4], [5, 4], [1, 5], [2, 5], [5, 5], [6, 5], [1, 6], [2, 6], [5, 6], [6, 6], [1, 7], [2, 7], [5, 7], [6, 7], [1, 8], [6, 8]],
+            ],
+            punch: [
+                [[3, 0], [4, 0], [2, 1], [3, 1], [4, 1], [5, 1], [3, 2], [4, 2], [2, 3], [3, 3], [4, 3], [5, 3], [2, 4], [3, 4], [4, 4], [5, 4], [2, 5], [5, 5], [1, 6], [2, 6], [5, 6], [6, 6], [1, 7], [2, 7], [5, 7], [6, 7], [1, 8], [2, 8], [5, 8], [6, 8], [1, 9], [6, 9]],
+                [[3, 0], [4, 0], [2, 1], [3, 1], [4, 1], [5, 1], [3, 2], [4, 2], [2, 3], [3, 3], [4, 3], [5, 3], [2, 4], [3, 4], [4, 4], [5, 4], [6, 4], [7, 4], [8, 4], [2, 5], [5, 5], [1, 6], [2, 6], [5, 6], [6, 6], [1, 7], [2, 7], [5, 7], [6, 7], [1, 8], [2, 8], [5, 8], [6, 8], [1, 9], [6, 9]],
+            ],
+            kick: [
+                [[3, 0], [4, 0], [2, 1], [3, 1], [4, 1], [5, 1], [3, 2], [4, 2], [2, 3], [3, 3], [4, 3], [5, 3], [2, 4], [3, 4], [4, 4], [5, 4], [2, 5], [5, 5], [1, 6], [2, 6], [5, 6], [6, 6], [1, 7], [2, 7], [5, 7], [6, 7], [1, 8], [2, 8], [5, 8], [6, 8], [1, 9], [6, 9]],
+                [[3, 0], [4, 0], [2, 1], [3, 1], [4, 1], [5, 1], [3, 2], [4, 2], [2, 3], [3, 3], [4, 3], [5, 3], [2, 4], [3, 4], [4, 4], [5, 4], [2, 5], [5, 5], [1, 6], [2, 6], [5, 6], [6, 6], [7, 6], [1, 7], [2, 7], [5, 7], [6, 7], [8, 7], [1, 8], [2, 8], [5, 8], [6, 8], [1, 9], [6, 9]],
+                [[3, 0], [4, 0], [2, 1], [3, 1], [4, 1], [5, 1], [3, 2], [4, 2], [2, 3], [3, 3], [4, 3], [5, 3], [2, 4], [3, 4], [4, 4], [5, 4], [2, 5], [5, 5], [1, 6], [2, 6], [5, 6], [6, 6], [1, 7], [2, 7], [5, 7], [6, 7], [7, 7], [8, 7], [9, 7], [1, 8], [2, 8], [5, 8], [6, 8], [1, 9], [6, 9]],
+            ],
+            stance: [
+                [[3, 0], [4, 0], [2, 1], [3, 1], [4, 1], [5, 1], [2, 2], [3, 2], [4, 2], [1, 3], [2, 3], [3, 3], [4, 3], [5, 3], [1, 4], [2, 4], [3, 4], [4, 4], [5, 4], [2, 5], [5, 5], [0, 6], [1, 6], [5, 6], [6, 6], [0, 7], [1, 7], [5, 7], [6, 7], [0, 8], [1, 8], [5, 8], [6, 8], [0, 9], [1, 9], [5, 9], [6, 9]],
+                [[3, 0], [4, 0], [2, 1], [3, 1], [4, 1], [5, 1], [3, 2], [4, 2], [5, 2], [2, 3], [3, 3], [4, 3], [5, 3], [6, 3], [2, 4], [3, 4], [4, 4], [5, 4], [6, 4], [2, 5], [5, 5], [1, 6], [2, 6], [6, 6], [7, 6], [1, 7], [2, 7], [6, 7], [7, 7], [1, 8], [2, 8], [6, 8], [7, 8], [1, 9], [2, 9], [6, 9], [7, 9]],
+            ],
+            flip: [
+                [[3, 0], [4, 0], [2, 1], [3, 1], [4, 1], [5, 1], [3, 2], [4, 2], [2, 3], [3, 3], [4, 3], [5, 3], [2, 4], [3, 4], [4, 4], [5, 4], [2, 5], [5, 5], [1, 6], [2, 6], [5, 6], [6, 6], [1, 7], [2, 7], [5, 7], [6, 7], [1, 8], [6, 8]],
+                [[2, -2], [3, -2], [4, -2], [1, -1], [2, -1], [3, -1], [4, -1], [5, -1], [1, 0], [2, 0], [3, 0], [4, 0], [5, 0], [2, 1], [3, 1], [4, 1]],
+                [[2, 0], [3, 0], [4, 0], [5, 0], [1, 1], [2, 1], [3, 1], [4, 1], [5, 1], [1, 2], [2, 2], [3, 2], [4, 2], [5, 2], [2, 3], [3, 3], [4, 3]],
+                [[3, 2], [4, 2], [2, 3], [3, 3], [4, 3], [5, 3], [3, 4], [4, 4], [2, 5], [3, 5], [4, 5], [5, 5], [2, 6], [3, 6], [4, 6], [5, 6], [2, 7], [5, 7], [1, 8], [2, 8], [5, 8], [6, 8], [1, 9], [2, 9], [5, 9], [6, 9]],
+            ],
+            meditate: [
+                [[3, 3], [4, 3], [2, 4], [3, 4], [4, 4], [5, 4], [3, 5], [4, 5], [2, 6], [3, 6], [4, 6], [5, 6], [1, 7], [2, 7], [3, 7], [4, 7], [5, 7], [6, 7], [0, 8], [1, 8], [2, 8], [3, 8], [4, 8], [5, 8], [6, 8], [7, 8], [0, 9], [7, 9]],
+                [[3, 3], [4, 3], [2, 4], [3, 4], [4, 4], [5, 4], [3, 5], [4, 5], [2, 6], [3, 6], [4, 6], [5, 6], [1, 7], [2, 7], [3, 7], [4, 7], [5, 7], [6, 7], [0, 8], [1, 8], [2, 8], [3, 8], [4, 8], [5, 8], [6, 8], [7, 8], [0, 9], [7, 9], [3, 1], [4, 1], [2, 2], [5, 2]],
+                [[3, 3], [4, 3], [2, 4], [3, 4], [4, 4], [5, 4], [3, 5], [4, 5], [2, 6], [3, 6], [4, 6], [5, 6], [1, 7], [2, 7], [3, 7], [4, 7], [5, 7], [6, 7], [0, 8], [1, 8], [2, 8], [3, 8], [4, 8], [5, 8], [6, 8], [7, 8], [0, 9], [7, 9], [3, 0], [4, 0], [2, 1], [5, 1], [1, 2], [3, 2], [4, 2], [6, 2], [0, 3], [7, 3]],
+            ],
+            awaken: [
+                [[3, 0], [4, 0], [2, 1], [3, 1], [4, 1], [5, 1], [3, 2], [4, 2], [2, 3], [3, 3], [4, 3], [5, 3], [2, 4], [3, 4], [4, 4], [5, 4], [2, 5], [5, 5], [1, 6], [2, 6], [5, 6], [6, 6], [1, 7], [2, 7], [5, 7], [6, 7], [1, 8], [2, 8], [5, 8], [6, 8], [1, 9], [6, 9]],
+                [[3, -1], [4, -1], [2, 0], [3, 0], [4, 0], [5, 0], [3, 1], [4, 1], [2, 2], [3, 2], [4, 2], [5, 2], [1, 3], [2, 3], [3, 3], [4, 3], [5, 3], [6, 3], [0, 4], [1, 4], [2, 4], [3, 4], [4, 4], [5, 4], [6, 4], [7, 4], [2, 5], [5, 5], [1, 6], [2, 6], [5, 6], [6, 6], [1, 7], [2, 7], [5, 7], [6, 7], [1, 8], [6, 8]],
+                [[3, -2], [4, -2], [2, -1], [3, -1], [4, -1], [5, -1], [1, 0], [2, 0], [3, 0], [4, 0], [5, 0], [6, 0], [0, 1], [1, 1], [2, 1], [3, 1], [4, 1], [5, 1], [6, 1], [7, 1], [0, 2], [1, 2], [2, 2], [3, 2], [4, 2], [5, 2], [6, 2], [7, 2], [1, 3], [2, 3], [3, 3], [4, 3], [5, 3], [6, 3], [2, 4], [3, 4], [4, 4], [5, 4], [2, 5], [5, 5], [1, 6], [2, 6], [5, 6], [6, 6], [1, 7], [6, 7]],
+                [[3, 0], [4, 0], [2, 1], [3, 1], [4, 1], [5, 1], [3, 2], [4, 2], [2, 3], [3, 3], [4, 3], [5, 3], [2, 4], [3, 4], [4, 4], [5, 4], [2, 5], [5, 5], [1, 6], [2, 6], [5, 6], [6, 6], [1, 7], [2, 7], [5, 7], [6, 7], [1, 8], [2, 8], [5, 8], [6, 8], [1, 9], [6, 9], [3, -1], [4, -1], [2, 0], [5, 0]],
+            ],
+        };
+
+        const FRAME_CONFIG = { frameInterval: 100, pixelSize: 4 };
+        const TRAINING_ACTIONS = ['punch', 'kick', 'stance', 'flip'];
+
+        const ANIMATION_PHASES_CONFIG = [
+            { phase: 'enter', duration: 2000, action: 'idle', fighterVisible: false, label: 'Entering Construct...' },
+            { phase: 'transfer', duration: 3000, action: 'meditate', fighterVisible: true, label: 'Transferring data...' },
+            { phase: 'training', duration: 10000, action: 'punch', fighterVisible: true, label: 'Training in progress...' },
+            { phase: 'awakening', duration: 3000, action: 'awaken', fighterVisible: true, label: 'Awakening...' },
+            { phase: 'complete', duration: 1000, action: 'idle', fighterVisible: true, label: 'I know' },
+        ];
+
+        // ============ CodeRain 组件 ============
+        function CodeRain({ opacity = 1, speed = 1, density = 1 }) {
+            const canvasRef = useRef(null);
+
+            useEffect(() => {
+                const canvas = canvasRef.current;
+                if (!canvas) return;
+                const ctx = canvas.getContext('2d');
+                if (!ctx) return;
+
+                const resize = () => {
+                    canvas.width = window.innerWidth;
+                    canvas.height = window.innerHeight;
+                };
+                resize();
+                window.addEventListener('resize', resize);
+
+                const fontSize = 14;
+                const columns = Math.floor((canvas.width / fontSize) * density);
+                const drops = Array(columns).fill(0).map(() => Math.random() * -50);
+                const baseSpeed = 0.5 * speed;
+                let lastTime = 0;
+                const frameInterval = 16;
+
+                const draw = (timestamp) => {
+                    if (timestamp - lastTime < frameInterval) {
+                        requestAnimationFrame(draw);
+                        return;
+                    }
+                    lastTime = timestamp;
+
+                    ctx.fillStyle = `rgba(13, 2, 8, ${0.05 / speed})`;
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    ctx.font = `${fontSize}px monospace`;
+
+                    for (let i = 0; i < drops.length; i++) {
+                        const char = getRandomChar();
+                        const y = drops[i] * fontSize;
+                        if (y > 0 && y < canvas.height) {
+                            ctx.fillStyle = MATRIX_COLORS.white;
+                            ctx.fillText(char, i * fontSize, y);
+                            const tailLength = 20;
+                            for (let t = 1; t < tailLength; t++) {
+                                const tailY = y - t * fontSize;
+                                if (tailY > 0) {
+                                    const alpha = 1 - t / tailLength;
+                                    ctx.fillStyle = `rgba(0, 255, 65, ${alpha * 0.8})`;
+                                    ctx.fillText(getRandomChar(), i * fontSize, tailY);
+                                }
+                            }
+                        }
+                        if (y > canvas.height && Math.random() > 0.975) drops[i] = 0;
+                        drops[i] += baseSpeed;
+                    }
+                    requestAnimationFrame(draw);
+                };
+
+                const animationId = requestAnimationFrame(draw);
+                return () => {
+                    cancelAnimationFrame(animationId);
+                    window.removeEventListener('resize', resize);
+                };
+            }, [opacity, speed, density]);
+
+            return React.createElement('canvas', {
+                ref: canvasRef,
+                style: { position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', opacity, pointerEvents: 'none' }
+            });
+        }
+
+        // ============ PixelFighter 组件 ============
+        function PixelFighter({ action, visible = true, scale = 1 }) {
+            const canvasRef = useRef(null);
+            const [frameIndex, setFrameIndex] = useState(0);
+            const [glowIntensity, setGlowIntensity] = useState(0);
+            const frames = FIGHTER_FRAMES[action] || FIGHTER_FRAMES.idle;
+            const frameCount = frames.length;
+
+            useEffect(() => {
+                const interval = setInterval(() => setFrameIndex(f => (f + 1) % frameCount), FRAME_CONFIG.frameInterval);
+                return () => clearInterval(interval);
+            }, [frameCount]);
+
+            useEffect(() => {
+                if (action === 'awaken') {
+                    const interval = setInterval(() => setGlowIntensity(g => (g + 0.1) % 1), 50);
+                    return () => clearInterval(interval);
+                } else {
+                    setGlowIntensity(0);
+                }
+            }, [action]);
+
+            useEffect(() => {
+                const canvas = canvasRef.current;
+                if (!canvas) return;
+                const ctx = canvas.getContext('2d');
+                if (!ctx) return;
+                const { width, height } = canvas;
+                ctx.clearRect(0, 0, width, height);
+                if (!visible) return;
+
+                const currentFrame = frames[frameIndex % frameCount];
+                const pixelSize = FRAME_CONFIG.pixelSize * scale;
+                const offsetX = (width - 8 * pixelSize) / 2;
+                const offsetY = (height - 12 * pixelSize) / 2;
+
+                if (action === 'awaken') {
+                    ctx.shadowColor = MATRIX_COLORS.gold;
+                    ctx.shadowBlur = 20 + glowIntensity * 30;
+                    ctx.fillStyle = MATRIX_COLORS.gold;
+                } else if (action === 'meditate') {
+                    ctx.shadowColor = MATRIX_COLORS.green;
+                    ctx.shadowBlur = 15;
+                    ctx.fillStyle = MATRIX_COLORS.green;
+                } else {
+                    ctx.shadowColor = MATRIX_COLORS.green;
+                    ctx.shadowBlur = 10;
+                    ctx.fillStyle = MATRIX_COLORS.green;
+                }
+
+                currentFrame.forEach(([x, y]) => {
+                    ctx.fillRect(offsetX + x * pixelSize, offsetY + y * pixelSize, pixelSize - 1, pixelSize - 1);
+                });
+                ctx.shadowBlur = 0;
+            }, [action, frameIndex, frames, visible, scale, glowIntensity]);
+
+            if (!visible) return null;
+            return React.createElement('canvas', { ref: canvasRef, width: 120 * scale, height: 160 * scale, style: { position: 'relative', zIndex: 10 } });
+        }
+
+        // ============ ProgressOverlay 组件 ============
+        const PHASE_LABELS = {
+            enter: 'Entering Construct...',
+            transfer: 'Transferring data...',
+            training: 'Training in progress...',
+            awakening: 'Awakening...',
+            complete: 'I know'
+        };
+
+        function ProgressOverlay({ phase, progress, skill }) {
+            const [displayProgress, setDisplayProgress] = useState(0);
+
+            useEffect(() => {
+                const timer = setTimeout(() => setDisplayProgress(progress), 50);
+                return () => clearTimeout(timer);
+            }, [progress]);
+
+            const label = phase === 'complete' && skill ? `I know ${skill}.` : PHASE_LABELS[phase];
+            const showProgress = phase === 'training';
+
+            return React.createElement('div', { style: { position: 'relative', zIndex: 20, textAlign: 'center', padding: '20px' } },
+                React.createElement('div', { style: { fontFamily: 'monospace', fontSize: '1.5rem', fontWeight: 'bold', textShadow: `0 0 10px ${MATRIX_COLORS.green}`, marginBottom: '1rem', letterSpacing: '2px', color: phase === 'complete' ? MATRIX_COLORS.gold : MATRIX_COLORS.green } }, label),
+                showProgress && React.createElement('div', { style: { display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' } },
+                    React.createElement('div', { style: { width: '300px', maxWidth: '80vw', height: '6px', backgroundColor: 'rgba(255, 255, 255, 0.1)', borderRadius: '3px', overflow: 'hidden' } },
+                        React.createElement('div', { style: { height: '100%', backgroundColor: MATRIX_COLORS.green, transition: 'width 0.1s ease-out', boxShadow: `0 0 10px ${MATRIX_COLORS.green}`, width: `${displayProgress}%` } })
+                    ),
+                    React.createElement('div', { style: { fontFamily: 'monospace', fontSize: '1rem', color: MATRIX_COLORS.green, textShadow: `0 0 5px ${MATRIX_COLORS.green}` } }, `${Math.round(displayProgress)}%`)
+                )
+            );
+        }
+
+        // ============ SkipButton 组件 ============
+        function SkipButton({ onClick, visible = true }) {
+            const [isHovered, setIsHovered] = useState(false);
+            if (!visible) return null;
+
+            return React.createElement('button', {
+                onClick,
+                onMouseEnter: () => setIsHovered(true),
+                onMouseLeave: () => setIsHovered(false),
+                style: {
+                    position: 'absolute', bottom: '2rem', right: '2rem', padding: '0.5rem 1.25rem',
+                    fontFamily: 'monospace', fontSize: '0.875rem', letterSpacing: '1px',
+                    border: `1px solid ${MATRIX_COLORS.green}`, borderRadius: '4px', cursor: 'pointer', transition: 'all 0.2s ease',
+                    backgroundColor: isHovered ? MATRIX_COLORS.green : 'transparent',
+                    color: isHovered ? MATRIX_COLORS.black : MATRIX_COLORS.green,
+                    boxShadow: isHovered ? `0 0 20px ${MATRIX_COLORS.green}` : 'none',
+                }
+            }, 'Skip →');
+        }
+
+        // ============ BeforeAfterComparison 组件 ============
+        function AnimatedScore({ value, color }) {
+            const [displayValue, setDisplayValue] = useState(0);
+            useEffect(() => {
+                const duration = 1000;
+                const startTime = Date.now();
+                const startValue = displayValue;
+                const animate = () => {
+                    const elapsed = Date.now() - startTime;
+                    const progress = Math.min(elapsed / duration, 1);
+                    const easeOut = 1 - Math.pow(1 - progress, 3);
+                    setDisplayValue(Math.round(startValue + (value - startValue) * easeOut));
+                    if (progress < 1) requestAnimationFrame(animate);
+                };
+                requestAnimationFrame(animate);
+            }, [value]);
+            return React.createElement('span', { style: { color } }, `${displayValue}%`);
+        }
+
+        function TypewriterSkill({ skill, delay }) {
+            const [displayText, setDisplayText] = useState('');
+            const [started, setStarted] = useState(false);
+
+            useEffect(() => {
+                const startTimer = setTimeout(() => setStarted(true), delay);
+                return () => clearTimeout(startTimer);
+            }, [delay]);
+
+            useEffect(() => {
+                if (!started) return;
+                let index = 0;
+                const interval = setInterval(() => {
+                    if (index <= skill.length) {
+                        setDisplayText(skill.slice(0, index));
+                        index++;
+                    } else {
+                        clearInterval(interval);
+                    }
+                }, 50);
+                return () => clearInterval(interval);
+            }, [started, skill]);
+
+            if (!started) return null;
+            return React.createElement('div', { style: { fontFamily: 'monospace', fontSize: '1rem', color: MATRIX_COLORS.green, textShadow: `0 0 5px ${MATRIX_COLORS.green}`, padding: '5px 15px', border: `1px solid ${MATRIX_COLORS.green}`, borderRadius: '4px', background: 'rgba(0, 255, 65, 0.1)' } },
+                `I know ${displayText}`,
+                displayText.length < skill.length && React.createElement('span', { style: { animation: 'blink 0.5s infinite' } }, '|')
+            );
+        }
+
+        function BeforeAfterComparison({ before, after, skills, onContinue }) {
+            const [visible, setVisible] = useState(false);
+            const scoreDiff = after.score - before.score;
+            const rankUp = before.rank !== after.rank;
+
+            useEffect(() => {
+                const timer = setTimeout(() => setVisible(true), 200);
+                return () => clearTimeout(timer);
+            }, []);
+
+            if (!visible) return null;
+
+            return React.createElement('div', { style: { position: 'relative', zIndex: 20, textAlign: 'center', padding: '20px' } },
+                React.createElement('div', { style: { display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '20px', marginBottom: '20px' } },
+                    // Before panel
+                    React.createElement('div', { style: { padding: '15px 25px', border: `1px solid ${MATRIX_COLORS.greenDark}`, borderRadius: '8px', background: 'rgba(0, 255, 65, 0.05)' } },
+                        React.createElement('div', { style: { fontFamily: 'monospace', fontSize: '0.75rem', color: MATRIX_COLORS.greenDark, marginBottom: '8px', letterSpacing: '2px' } }, 'BEFORE'),
+                        React.createElement('div', { style: { fontFamily: 'monospace', fontSize: '2.5rem', fontWeight: 'bold', color: MATRIX_COLORS.greenDark, marginBottom: '4px' } }, before.rank),
+                        React.createElement(AnimatedScore, { value: before.score, color: MATRIX_COLORS.greenDark })
+                    ),
+                    // Arrow
+                    React.createElement('div', { style: { fontSize: '2rem', color: MATRIX_COLORS.green, textShadow: `0 0 10px ${MATRIX_COLORS.green}` } }, '→'),
+                    // After panel
+                    React.createElement('div', { style: { padding: '15px 25px', border: `1px solid ${MATRIX_COLORS.success}`, borderRadius: '8px', background: 'rgba(74, 222, 128, 0.1)', boxShadow: `0 0 20px ${MATRIX_COLORS.success}40` } },
+                        React.createElement('div', { style: { fontFamily: 'monospace', fontSize: '0.75rem', color: MATRIX_COLORS.success, marginBottom: '8px', letterSpacing: '2px' } }, 'AFTER'),
+                        React.createElement('div', { style: { fontFamily: 'monospace', fontSize: '2.5rem', fontWeight: 'bold', color: MATRIX_COLORS.gold, marginBottom: '4px' } }, after.rank),
+                        React.createElement(AnimatedScore, { value: after.score, color: MATRIX_COLORS.success })
+                    )
+                ),
+                // Boost
+                React.createElement('div', { style: { fontFamily: 'monospace', fontSize: '1.25rem', marginBottom: '20px' } },
+                    React.createElement('span', { style: { color: MATRIX_COLORS.success } }, `+${scoreDiff}%`),
+                    React.createElement('span', { style: { color: MATRIX_COLORS.greenDark } }, ' Boost'),
+                    rankUp && React.createElement('span', { style: { color: MATRIX_COLORS.gold, marginLeft: '8px' } }, `${before.rank} → ${after.rank}`)
+                ),
+                // Skills
+                React.createElement('div', { style: { display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'center' } },
+                    skills.map((skill, index) => React.createElement(TypewriterSkill, { key: skill, skill, delay: 500 + index * 300 }))
+                ),
+                // Continue button (shows after 2s)
+                React.createElement(ContinueButton, { onContinue })
+            );
+        }
+
+        function ContinueButton({ onClick }) {
+            const [visible, setVisible] = useState(false);
+            useEffect(() => {
+                const timer = setTimeout(() => setVisible(true), 2000);
+                return () => clearTimeout(timer);
+            }, []);
+            if (!visible) return null;
+            return React.createElement('button', {
+                onClick,
+                style: { marginTop: '30px', padding: '12px 32px', fontFamily: 'monospace', fontSize: '1rem', fontWeight: 'bold', color: MATRIX_COLORS.black, background: MATRIX_COLORS.green, border: 'none', borderRadius: '8px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '8px', boxShadow: `0 0 20px ${MATRIX_COLORS.green}60`, transition: 'all 0.3s ease' }
+            }, React.createElement('span', { style: { fontSize: '1.25rem' } }, '→'), '继续升级');
+        }
+
+        // ============ 主动画组件 ============
+        function TrainingAnimation({ config, onComplete, onPhaseChange, skippable = true }) {
+            const [currentPhaseIndex, setCurrentPhaseIndex] = useState(0);
+            const [phaseProgress, setPhaseProgress] = useState(0);
+            const [isComplete, setIsComplete] = useState(false);
+            const [showComparison, setShowComparison] = useState(false);
+            const [trainingActionIndex, setTrainingActionIndex] = useState(0);
+            const [skills, setSkills] = useState([]);
+            const startTimeRef = useRef(0);
+            const animationFrameRef = useRef();
+
+            const currentConfig = ANIMATION_PHASES_CONFIG[currentPhaseIndex];
+            const currentPhase = currentConfig?.phase ?? 'complete';
+
+            useEffect(() => {
+                if (isComplete) return;
+
+                const animate = (timestamp) => {
+                    if (!startTimeRef.current) startTimeRef.current = timestamp;
+
+                    const { phase, duration, action } = currentConfig;
+                    const phaseElapsed = timestamp - startTimeRef.current;
+                    const progress = duration > 0 ? Math.min((phaseElapsed / duration) * 100, 100) : 100;
+                    setPhaseProgress(progress);
+                    onPhaseChange?.(phase, progress);
+
+                    // 训练阶段切换动作
+                    if (phase === 'training' && phaseElapsed > 0) {
+                        const newActionIndex = Math.floor(phaseElapsed / 800) % TRAINING_ACTIONS.length;
+                        if (newActionIndex !== trainingActionIndex) {
+                            setTrainingActionIndex(newActionIndex);
+                        }
+                    }
+
+                    // 检查阶段结束
+                    if (duration > 0 && phaseElapsed >= duration) {
+                        const nextIndex = currentPhaseIndex + 1;
+                        if (nextIndex < ANIMATION_PHASES_CONFIG.length) {
+                            setCurrentPhaseIndex(nextIndex);
+                            startTimeRef.current = timestamp;
+                            setPhaseProgress(0);
+                        } else {
+                            setIsComplete(true);
+                            setShowComparison(true);
+                            return;
+                        }
+                    } else if (duration === 0) {
+                        // duration=0 的阶段立即结束
+                        const nextIndex = currentPhaseIndex + 1;
+                        if (nextIndex < ANIMATION_PHASES_CONFIG.length) {
+                            setCurrentPhaseIndex(nextIndex);
+                            startTimeRef.current = timestamp;
+                        } else {
+                            setIsComplete(true);
+                            setShowComparison(true);
+                            return;
+                        }
+                    }
+
+                    animationFrameRef.current = requestAnimationFrame(animate);
+                };
+
+                animationFrameRef.current = requestAnimationFrame(animate);
+                return () => {
+                    if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
+                };
+            }, [currentPhaseIndex, isComplete, currentConfig, trainingActionIndex]);
+
+            // 技能打字机效果
+            useEffect(() => {
+                if (currentPhase === 'complete' && config.skills.length > 0 && !showComparison) {
+                    const interval = setInterval(() => {
+                        setSkills(prev => {
+                            if (prev.length < config.skills.length) {
+                                return config.skills.slice(0, prev.length + 1);
+                            }
+                            return prev;
+                        });
+                    }, 300);
+                    return () => clearInterval(interval);
+                }
+            }, [currentPhase, config.skills, showComparison]);
+
+            const getCurrentAction = () => {
+                if (currentPhase === 'training') return TRAINING_ACTIONS[trainingActionIndex];
+                return currentConfig.action;
+            };
+
+            const skip = () => {
+                setIsComplete(true);
+                setShowComparison(true);
+                if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
+            };
+
+            const getTrainingProgress = () => {
+                if (currentPhase === 'training') return phaseProgress;
+                return currentPhase === 'complete' ? 100 : 0;
+            };
+
+            return React.createElement('div', { style: { position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: MATRIX_COLORS.black, overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' } },
+                React.createElement(CodeRain, { opacity: currentPhase === 'enter' ? 0.3 : 0.7, speed: currentPhase === 'training' ? 1.5 : 1 }),
+                React.createElement('div', { style: { position: 'relative', zIndex: 10, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '20px', padding: '20px', textAlign: 'center' } },
+                    !showComparison && React.createElement(ProgressOverlay, { phase: currentPhase, progress: getTrainingProgress(), skill: skills[skills.length - 1] }),
+                    React.createElement('div', { style: { margin: '20px 0' } },
+                        React.createElement(PixelFighter, { action: getCurrentAction(), visible: currentConfig.fighterVisible, scale: 1.5 })
+                    ),
+                    currentPhase === 'complete' && !showComparison && React.createElement('div', { style: { display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '10px' } },
+                        skills.map((skill, index) => React.createElement('div', { key: `${skill}-${index}`, style: { fontFamily: 'monospace', fontSize: '1.25rem', color: MATRIX_COLORS.green, textShadow: `0 0 10px ${MATRIX_COLORS.green}`, transition: 'opacity 0.3s ease', opacity: index === skills.length - 1 ? 1 : 0.5 } }, `I know ${skill}.`))
+                    ),
+                    showComparison && React.createElement(BeforeAfterComparison, {
+                        before: { score: config.beforeScore, rank: config.beforeRank },
+                        after: { score: config.afterScore, rank: config.afterRank },
+                        skills: config.skills,
+                        onContinue: onComplete
+                    })
+                ),
+                skippable && !isComplete && React.createElement(SkipButton, { onClick: skip, visible: !showComparison })
+            );
+        }
+
+        // ============ 渲染 ============
+        const config = {
+            skills: ['SPIN 销售法', 'Challenger Sale', '大客户管理策略'],
+            beforeScore: 85,
+            afterScore: 94,
+            beforeRank: 'A',
+            afterRank: 'A',
+        };
+
+        function App() {
+            return React.createElement(TrainingAnimation, {
+                config,
+                onComplete: () => {
+                    alert('动画完成！点击确定重新开始');
+                    window.location.reload();
+                },
+                onPhaseChange: (phase, progress) => console.log(`Phase: ${phase}, Progress: ${progress.toFixed(1)}%`),
+                skippable: true
+            });
+        }
+
+        const root = createRoot(document.getElementById('root'));
+        root.render(React.createElement(App));
+    </script>
+</body>
+</html>

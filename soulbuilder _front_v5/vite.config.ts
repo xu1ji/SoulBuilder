@@ -16,11 +16,13 @@ export default defineConfig(({mode}) => {
         // 添加 SoulBuilder 包的 alias
         '@soulbuilder/shared': path.resolve(__dirname, '../packages/shared/index.ts'),
         '@soulbuilder/animation': path.resolve(__dirname, '../packages/animation/src/index.ts'),
+        '@soulbuilder/assessment': path.resolve(__dirname, '../packages/assessment/src/index.ts'),
+        '@soulbuilder/training': path.resolve(__dirname, '../packages/training/src/index.ts'),
       },
     },
     server: {
       // HMR is disabled in AI Studio via DISABLE_HMR env var.
-      // Do not modifyâfile watching is disabled to prevent flickering during agent edits.
+      // Do not modifyâ─■file watching is disabled to prevent flickering during agent edits.
       hmr: process.env.DISABLE_HMR !== 'true',
     },
   };

@@ -1,16 +1,36 @@
 import { useParams, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { ArrowLeft, MessageSquare, BookOpen, Trophy, Database, Target, Star } from 'lucide-react'
+import { ArrowLeft, Star } from 'lucide-react'
 import { useAppStore } from '../stores/useAppStore'
 import { TRAINING_METHODS } from '@soulbuilder/shared'
 
-// 方法图标
-const methodIcons: Record<string, React.ReactNode> = {
-  describe: <MessageSquare size={20} />,
-  methodology: <BookOpen size={20} />,
-  'case-study': <Trophy size={20} />,
-  knowledge: <Database size={20} />,
-  scenario: <Target size={20} />,
+// 彩色渐变图标配置
+const methodIconConfig: Record<string, { icon: string; gradient: string; bgLight: string }> = {
+  describe: {
+    icon: '💬',
+    gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+    bgLight: '#f0f4ff',
+  },
+  methodology: {
+    icon: '📚',
+    gradient: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+    bgLight: '#fff0f6',
+  },
+  'case-study': {
+    icon: '🏆',
+    gradient: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+    bgLight: '#e6fbff',
+  },
+  knowledge: {
+    icon: '🧠',
+    gradient: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
+    bgLight: '#fffbeb',
+  },
+  scenario: {
+    icon: '🎯',
+    gradient: 'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)',
+    bgLight: '#f0fdfa',
+  },
 }
 
 export default function TrainingModePage() {
@@ -55,45 +75,52 @@ export default function TrainingModePage() {
       </div>
 
       {/* 训练方式列表 */}
-      <div className="space-y-4">
-        {TRAINING_METHODS.map((method, index) => (
-          <motion.div
-            key={method.id}
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.05 }}
-            onClick={() => handleSelectMethod(method.id)}
-            className="bg-white rounded-2xl border border-gray-200 p-5 cursor-pointer
-                       hover:border-gray-300 hover:shadow-md transition-all group"
-          >
-            <div className="flex items-start gap-4">
-              {/* 图标 */}
-              <div className="w-10 h-10 rounded-xl bg-gray-50 group-hover:bg-black
-                              flex items-center justify-center text-gray-600 group-hover:text-white
-                              transition-colors shrink-0">
-                {methodIcons[method.id]}
-              </div>
+      <div className="space-y-3">
+        {TRAINING_METHODS.map((method, index) => {
+          const config = methodIconConfig[method.id] || methodIconConfig.describe
 
-              {/* 内容 */}
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-1">
-                  <h3 className="font-semibold text-gray-900">{method.name}</h3>
-                  {method.id === 'describe' && (
-                    <span className="flex items-center gap-1 px-2 py-0.5 bg-amber-50
-                                     text-amber-700 text-[10px] font-bold rounded-full">
-                      <Star size={10} />
-                      推荐
-                    </span>
-                  )}
+          return (
+            <motion.div
+              key={method.id}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.05 }}
+              onClick={() => handleSelectMethod(method.id)}
+              className="bg-white rounded-2xl border border-gray-100 p-5 cursor-pointer
+                         hover:border-gray-200 hover:shadow-md transition-all group"
+            >
+              <div className="flex items-start gap-4">
+                {/* 图标 - 彩色背景 */}
+                <div
+                  className="w-10 h-10 rounded-xl flex items-center justify-center text-xl shrink-0"
+                  style={{ background: config.bgLight }}
+                >
+                  {config.icon}
                 </div>
-                <p className="text-sm text-gray-500 mb-2">{method.description}</p>
-                <p className="text-xs text-gray-400">
-                  示例：{method.example}
-                </p>
+
+                {/* 内容 */}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1">
+                    <h3 className="font-semibold text-gray-900">{method.name}</h3>
+                    {method.id === 'describe' && (
+                      <span
+                        className="flex items-center gap-1 px-2 py-0.5 text-[10px] font-bold rounded-full text-white"
+                        style={{ background: config.gradient }}
+                      >
+                        <Star size={10} />
+                        推荐
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-sm text-gray-500 mb-1">{method.description}</p>
+                  <p className="text-xs text-gray-400">
+                    示例：{method.example}
+                  </p>
+                </div>
               </div>
-            </div>
-          </motion.div>
-        ))}
+            </motion.div>
+          )
+        })}
       </div>
     </div>
   )

@@ -6,6 +6,15 @@ import { ArrowLeft, Share2, Zap, Target, Briefcase, Sparkles, ChevronRight } fro
 import { useStore } from '../stores/useStore';
 import { RankBadge } from '../components/ui/RankBadge';
 
+// 根据分数返回颜色
+const getScoreColor = (value: number): string => {
+  if (value >= 90) return 'bg-emerald-500';
+  if (value >= 75) return 'bg-blue-500';
+  if (value >= 60) return 'bg-amber-500';
+  if (value >= 50) return 'bg-orange-500';
+  return 'bg-red-500';
+};
+
 const AgentDetailPage: React.FC = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -38,10 +47,11 @@ const AgentDetailPage: React.FC = () => {
       <div className="flex items-center justify-between mb-8">
         <div className="flex items-center gap-4">
           {/* 头像 */}
-          <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-violet-500 to-purple-500
-                          flex items-center justify-center text-white font-bold text-xl">
-            {agent.name[0]}
-          </div>
+          <img
+            src={agent.avatar}
+            alt={agent.name}
+            className="w-14 h-14 rounded-xl object-cover"
+          />
 
           {/* 名称和等级 */}
           <div>
@@ -172,7 +182,7 @@ const DimensionRow: React.FC<{ label: string; value: number; weight: number }> =
     <span className="text-sm text-gray-600 w-20">{label}</span>
     <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
       <motion.div
-        className="h-full bg-black rounded-full"
+        className={`h-full rounded-full ${getScoreColor(value)}`}
         initial={{ width: 0 }}
         animate={{ width: `${value}%` }}
         transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1], delay: 0.1 }}

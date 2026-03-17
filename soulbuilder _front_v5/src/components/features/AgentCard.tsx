@@ -8,12 +8,21 @@ interface AgentCardProps {
   agent: Agent;
 }
 
+// 根据分数返回颜色
+const getScoreColor = (value: number): string => {
+  if (value >= 90) return 'bg-emerald-500';
+  if (value >= 75) return 'bg-blue-500';
+  if (value >= 60) return 'bg-amber-500';
+  if (value >= 50) return 'bg-orange-500';
+  return 'bg-red-500';
+};
+
 const DimensionMiniBar: React.FC<{ label: string; value: number }> = ({ label, value }) => (
   <div className="flex items-center gap-2">
     <span className="text-[10px] text-gray-500 w-6 shrink-0">{label}</span>
-    <div className="flex-1 h-1 bg-gray-100 rounded-full overflow-hidden">
+    <div className="flex-1 h-1 bg-gray-200 rounded-full overflow-hidden">
       <motion.div
-        className="h-full bg-gray-800 rounded-full"
+        className={`h-full rounded-full ${getScoreColor(value)}`}
         initial={{ width: 0 }}
         animate={{ width: `${value}%` }}
         transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
@@ -46,25 +55,22 @@ export const AgentCard: React.FC<AgentCardProps> = ({ agent }) => {
 
   return (
     <motion.div
-      whileHover={{ y: -2, boxShadow: '0 12px 24px rgba(0,0,0,0.08)' }}
+      whileHover={{ y: -4, boxShadow: '0 20px 40px rgba(0,0,0,0.12)' }}
       transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-      className="relative bg-white rounded-2xl border border-gray-200 p-4 hover:border-gray-300 transition-all duration-200"
+      className="relative bg-gray-50 rounded-2xl border border-gray-200/60 p-5 shadow-lg shadow-gray-200/50 transition-all duration-200"
     >
-      {/* 等级角标 - 右上角 */}
-      <div className="absolute -top-1 -right-1 z-10">
-        <div className={`p-[2px] rounded-lg bg-gradient-to-br ${rankGradients[agent.rank]}`}>
-          <div className="bg-white rounded-[6px] px-2 py-1 text-center min-w-[44px]">
-            <div className="text-sm font-bold text-gray-900 leading-none">{agent.rank}</div>
-            <div className="text-[9px] text-gray-500 font-medium mt-0.5">{agent.score}</div>
-          </div>
-        </div>
+      {/* 等级标识 - 右上角半透明 */}
+      <div className="absolute top-3 right-4 text-2xl font-bold text-gray-900/40">
+        {agent.rank}
       </div>
 
       {/* 头部：头像 + 名称 + 状态 */}
-      <div className="flex items-center gap-3 mb-4 pr-12">
-        <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-violet-500 to-purple-500 flex items-center justify-center text-white font-bold text-sm shrink-0">
-          {agent.name[0]}
-        </div>
+      <div className="flex items-center gap-3 mb-4">
+        <img
+          src={agent.avatar}
+          alt={agent.name}
+          className="w-10 h-10 rounded-lg object-cover shrink-0"
+        />
 
         <div className="flex-1 min-w-0">
           <h3 className="text-sm font-semibold text-gray-900 truncate">

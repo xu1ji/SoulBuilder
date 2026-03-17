@@ -12,8 +12,7 @@ const AgentListPage: React.FC = () => {
       {/* 顶部栏 - 更紧凑 */}
       <header className="flex items-center justify-between mb-8">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-black rounded-xl flex items-center justify-center
-                          text-white font-bold text-lg">
+          <div className="w-10 h-10 rounded-xl bg-black flex items-center justify-center text-white font-bold text-lg">
             S
           </div>
           <div>

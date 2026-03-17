@@ -24,6 +24,12 @@
       ],
       "@soulbuilder/animation": [
         "../packages/animation/src/index.ts"
+      ],
+      "@soulbuilder/assessment": [
+        "../packages/assessment/src/index.ts"
+      ],
+      "@soulbuilder/training": [
+        "../packages/training/src/index.ts"
       ]
     },
     "allowImportingTsExtensions": true,
